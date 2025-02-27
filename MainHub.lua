@@ -13,8 +13,7 @@ local Window = WindUI:CreateWindow({
     HasOutline = false,
     -- remove it below if you don't want to use the key system in your script.
     KeySystem = { 
-        Key = { "1234", "5678" },
-        Note = "The Key is '1234' or '5678",
+        Key = { "3535", "2525" },
         -- Thumbnail = {
         --     Image = "rbxassetid://18220445082", -- rbxassetid only
         --     Title = "Thumbnail"
