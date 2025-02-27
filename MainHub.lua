@@ -1,7 +1,7 @@
 local WindUI = loadstring(game:HttpGet("https://tree-hub.vercel.app/api/UI/WindUI"))()
 
 local Window = WindUI:CreateWindow({
-    Title = "WindUI Library",
+    Title = "IqokczHub",
     Icon = "door-open",
     Author = "Example UI",
     Folder = "CloudHub",
