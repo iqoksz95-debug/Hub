@@ -1882,5 +1882,16 @@ end)
     end
 })
 
+Section1:AddButton({
+    enabled = true,
+    text = "Join Dev Sever",
+    tooltip = "",
+    confirm = true,
+    risky = true,
+    callback = function()
+game:GetService("TeleportService"):Teleport(14695890495, game.Players.LocalPlayer)
+    end
+})
+
 local Time = (string.format("%."..tostring(Decimals).."f", os.clock() - Clock))
 library:SendNotification(("Loaded In "..tostring(Time)), 6)
