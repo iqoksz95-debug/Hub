@@ -17,10 +17,11 @@ local Window1 = library.NewWindow({
 local Tab1 = Window1:AddTab("  Main  ")
 local Tab2 = Window1:AddTab("  Esp  ")
 local Tab3 = Window1:AddTab("  Teleport  ")
+local Tab4 = Window1:AddTab("  Misc  ")
 local SettingsTab = library:CreateSettingsTab(Window1)
 
 local Section1 = Tab1:AddSection("Main", 1)
-local Section2 = Tab1:AddSection("Misc", 2)
+local Section2 = Tab4:AddSection("Misc", 1)
 local Section3 = Tab2:AddSection("Esp", 1)
 local Section4 = Tab3:AddSection("Locations", 1)
 
@@ -703,9 +704,9 @@ local function addHighlightWithTextOnHead(targetInstance)
     -- Создаем новый объект Highlight
     local highlight = Instance.new("Highlight")
     highlight.Name = "esplight"
-    highlight.FillColor = Color3.fromRGB(255, 255, 0)
-    highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
-    highlight.FillTransparency = 0.5
+    highlight.FillColor = Color3.fromRGB(255, 255, 255)
+    highlight.OutlineColor = Color3.fromRGB(170, 0, 0)
+    highlight.FillTransparency = 1
     highlight.OutlineTransparency = 0
     highlight.Parent = targetInstance
 
@@ -739,7 +740,7 @@ local function addHighlightWithTextOnHead(targetInstance)
     name.Text = targetInstance.Name
     name.TextSize = 14
     name.TextStrokeTransparency = 0.5
-    name.TextColor3 = Color3.fromRGB(0, 255, 0)
+    name.TextColor3 = Color3.fromRGB(255, 0, 0)
     name.Parent = container
 
     -- Создаем текстовый элемент для отображения атрибутов
@@ -750,7 +751,7 @@ local function addHighlightWithTextOnHead(targetInstance)
     data.Text = "[0] [Anger: 0%] [Burst: 0%] [Choke: 100%]"
     data.TextSize = 12
     data.TextStrokeTransparency = 0.5
-    data.TextColor3 = Color3.fromRGB(0, 255, 0)
+    data.TextColor3 = Color3.fromRGB(255, 255, 255)
     data.Parent = container
 
     -- Присоединяем элементы к контейнеру
@@ -804,7 +805,7 @@ local function addHighlight(item)
         local highlight = Instance.new("Highlight")
         highlight.Name = "Highlight"
         highlight.FillColor = Color3.fromRGB(170, 85, 0) -- Цвет заполнения
-        highlight.OutlineColor = Color3.fromRGB(255, 0, 0) -- Цвет контура
+        highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- Цвет контура
         highlight.FillTransparency = 0.5
         highlight.OutlineTransparency = 0
         highlight.Parent = item
@@ -987,9 +988,9 @@ local function addHighlightWithTextOnHead(targetInstance)
 
     local highlight = Instance.new("Highlight")
     highlight.Name = "esplight"
-    highlight.FillColor = Color3.fromRGB(255, 255, 0)
-    highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
-    highlight.FillTransparency = 0.5
+    highlight.FillColor = Color3.fromRGB(255, 255, 255)
+    highlight.OutlineColor = Color3.fromRGB(0, 85, 255)
+    highlight.FillTransparency = 1
     highlight.OutlineTransparency = 0
     highlight.Parent = targetInstance
 
@@ -1018,7 +1019,7 @@ local function addHighlightWithTextOnHead(targetInstance)
     name.Text = targetInstance.Name
     name.TextSize = 14
     name.TextStrokeTransparency = 0.5
-    name.TextColor3 = Color3.fromRGB(0, 255, 0)
+    name.TextColor3 = Color3.fromRGB(255, 0, 0)
     name.Parent = container
 
     local data = Instance.new("TextLabel")
@@ -1028,7 +1029,7 @@ local function addHighlightWithTextOnHead(targetInstance)
     data.Text = "[0] [Anger: 0%] [Burst: 0%] [Choke: 100%]"
     data.TextSize = 12
     data.TextStrokeTransparency = 0.5
-    data.TextColor3 = Color3.fromRGB(0, 255, 0)
+    data.TextColor3 = Color3.fromRGB(255, 255, 255)
     data.Parent = container
 
     listlayout.Parent = container
@@ -1296,135 +1297,6 @@ Section1:AddToggle({
     end
 })
 
-local player = game.Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
-
--- Создаем ScreenGui
-local screenGuiChain = Instance.new("ScreenGui")
-screenGuiChain.Name = "ChainStats"
-screenGuiChain.Parent = playerGui
-screenGuiChain.Enabled = false
-screenGuiChain.ResetOnSpawn = false
-
--- Создаем Frame с черным фоном и прозрачностью 0.5
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 210, 0, 250)  -- Увеличиваем ширину фрейма
-frame.Position = UDim2.new(0, 10, 0.5, -100) -- Позиция слева по центру
-frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Черный цвет фона
-frame.BackgroundTransparency = 0.5 -- Прозрачность фона
-frame.BorderSizePixel = 1 -- Убираем границу
-frame.Parent = screenGuiChain
-
--- Создаем TextLabel для титула
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(0, 200, 0, 50) -- Размер титула
-titleLabel.Position = UDim2.new(0.5, -100, 0, 10) -- Позиция по центру по горизонтали
-titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Белый цвет текста
-titleLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Черный фон
-titleLabel.BackgroundTransparency = 0.5 -- Прозрачность фона
-titleLabel.TextSize = 14 -- Размер текста для титула
-titleLabel.Text = "Chain Stats:" -- Текст титула
-titleLabel.TextXAlignment = Enum.TextXAlignment.Center -- Центрирование текста по горизонтали
-titleLabel.Parent = frame
-
--- Функция для создания и настройки TextLabel
-local function createTextLabel(name, positionY, defaultText)
-    local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(0, 200, 0, 50) -- Размер TextLabel
-    textLabel.Position = UDim2.new(0.5, -100, 0, positionY) -- Позиция по центру по горизонтали
-    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Белый цвет текста
-    textLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Черный фон
-    textLabel.BackgroundTransparency = 0.5 -- Прозрачность фона
-    textLabel.TextSize = 12 -- Размер текста
-    textLabel.Text = defaultText -- Начальный текст
-    textLabel.Name = name
-    textLabel.TextXAlignment = Enum.TextXAlignment.Center -- Центрирование текста по горизонтали
-    textLabel.Parent = frame
-    return textLabel
-end
-
--- Создаем TextLabel для ChokeMeter
-local chokeTextLabel = createTextLabel("ChokeLabel", 70, "Choke: 0%")
--- Создаем TextLabel для Burst
-local burstTextLabel = createTextLabel("BurstLabel", 130, "Burst: 0%")
--- Создаем TextLabel для Bloodmoon
-local bloodmoonTextLabel = createTextLabel("BloodmoonLabel", 190, "Bloodmoon: 0%")
-
--- Функция для обновления значений атрибутов
-local function updateAttributeText(label, attributeValue)
-    -- Обновляем текст для каждого атрибута с пробелами после двоеточия
-    label.Text = label.Text:match("^(%a+):") .. ": " .. math.floor(attributeValue) .. "%" 
-end
-
--- Функция для мониторинга атрибутов модели CHAIN
-local function monitorAttributes(chain)
-    -- Получаем и обновляем значение атрибута ChokeMeter
-    local chokeMeter = chain:GetAttribute("ChokeMeter")
-    if chokeMeter then
-        updateAttributeText(chokeTextLabel, chokeMeter)
-        
-        -- Подключаемся к изменению атрибута ChokeMeter
-        chain:GetAttributeChangedSignal("ChokeMeter"):Connect(function()
-            updateAttributeText(chokeTextLabel, chain:GetAttribute("ChokeMeter"))
-        end)
-    end
-
-    -- Получаем и обновляем значение атрибута Burst
-    local burst = chain:GetAttribute("Burst")
-    if burst then
-        updateAttributeText(burstTextLabel, burst)
-
-        -- Подключаемся к изменению атрибута Burst
-        chain:GetAttributeChangedSignal("Burst"):Connect(function()
-            updateAttributeText(burstTextLabel, chain:GetAttribute("Burst"))
-        end)
-    end
-
-    -- Получаем и обновляем значение атрибута Anger (Bloodmoon)
-    local anger = chain:GetAttribute("Anger")
-    if anger then
-        updateAttributeText(bloodmoonTextLabel, anger)
-
-        -- Подключаемся к изменению атрибута Anger
-        chain:GetAttributeChangedSignal("Anger"):Connect(function()
-            updateAttributeText(bloodmoonTextLabel, chain:GetAttribute("Anger"))
-        end)
-    end
-end
-
--- Функция для проверки и мониторинга появления CHAIN
-local function checkForChain()
-    -- Пытаемся найти объект CHAIN в Workspace
-    local chain = game.Workspace:FindFirstChild("Misc") and game.Workspace.Misc:FindFirstChild("AI") and game.Workspace.Misc.AI:FindFirstChild("CHAIN")
-    
-    if chain then
-        -- Если объект уже существует, начинаем мониторинг
-        monitorAttributes(chain)
-    else
-        -- Если объект не найден, ждем его появления
-        game.Workspace.Misc.AI.ChildAdded:Connect(function(child)
-            if child.Name == "CHAIN" then
-                -- Когда объект CHAIN появляется, начинаем мониторинг
-                monitorAttributes(child)
-            end
-        end)
-    end
-end
-
--- Начинаем проверку наличия объекта CHAIN
-checkForChain()
-
-Section1:AddToggle({
-    text = "Chain Status GUI",
-    state = false, -- Начальное состояние: отключено
-    risky = false,
-    tooltip = "You will be able to find out the status of Power, Round Time, and how much scrap you have",
-    flag = "Toggle_Scrap_Display",
-    callback = function(v)
-        screenGuiChain.Enabled = v -- Показываем или скрываем меню в зависимости от состояния переключателя
-    end
-})
-
 Section2:AddButton({
     enabled = true,
     text = "Inf Ammo All Guns",
@@ -1441,7 +1313,11 @@ if char and char:FindFirstChild("Items") then
     for _, itemName in ipairs(items) do
         local item = char.Items:FindFirstChild(itemName)
         if item then
-            item:SetAttribute("Ammo", 9999)
+            if itemName == "XSaw" then
+                item:SetAttribute("Gas", 100)
+            else
+                item:SetAttribute("Ammo", 9999)
+            end
         end
     end
 end
@@ -1534,6 +1410,410 @@ for _, item in ipairs({
 end
     end
 })
+
+Section2:AddButton({
+    enabled = true,
+    text = "Get Quest",
+    tooltip = "Geting Quest book",
+    confirm = false,
+    risky = false,
+    callback = function()
+local player = game.Players.LocalPlayer
+local workspace = game:GetService("Workspace")
+local camera = workspace.CurrentCamera
+local questNPC = workspace.Misc.NPCS.QuestNPC
+local serverStats = player:WaitForChild("PlayerStats"):WaitForChild("ServerStats")
+
+local targetPosition1 = Vector3.new(286.989136, -97.8781891, 159.619736)
+local targetRotation1 = CFrame.Angles(math.rad(180), math.rad(-78.71900177001953), math.rad(180))
+
+local function teleportAndActivatePrompt(targetPosition, targetRotation)
+	local returnPosition = player.Character.HumanoidRootPart.Position
+	local returnCFrame = player.Character.HumanoidRootPart.CFrame
+
+	local invisiblePart = Instance.new("Part")
+	invisiblePart.Size = Vector3.new(5, 1, 5)
+	invisiblePart.Position = returnPosition
+	invisiblePart.Anchored = true
+	invisiblePart.CanCollide = true
+	invisiblePart.Transparency = 1
+	invisiblePart.Parent = workspace
+
+	player.Character:SetPrimaryPartCFrame(CFrame.new(targetPosition) * targetRotation)
+
+	wait(1)
+
+	local hitbox = questNPC:FindFirstChild("Hitbox")
+	if not hitbox then
+		invisiblePart:Destroy()
+		return
+	end
+	
+	local prox = hitbox:FindFirstChild("ProximityPrompt")
+	if not prox then
+		invisiblePart:Destroy()
+		return
+	end
+
+	if not prox.Enabled then
+		prox.Enabled = true
+	end
+
+	camera.CFrame = CFrame.new(camera.CFrame.Position, hitbox.Position)
+
+    local function setSurvivals(value)
+    serverStats:SetAttribute("Survivals", value)
+end
+
+setSurvivals(5)
+    
+    wait(0.3)
+	fireproximityprompt(prox, 0)
+    wait(0.5)
+	prox.Enabled = false
+
+	wait(1)
+
+	player.Character:SetPrimaryPartCFrame(returnCFrame)
+
+	wait(3)
+	invisiblePart:Destroy()
+end
+
+teleportAndActivatePrompt(targetPosition1, targetRotation1)
+
+
+end
+})
+
+local targets = {
+    workspace.Misc.Zones.LootingItems.Artifacts:GetChildren()[4],
+    workspace.Misc.Zones.LootingItems.Artifacts.Artifact,
+    workspace.Misc.Zones.LootingItems.Artifacts:GetChildren()[2],
+    workspace.Misc.Zones.LootingItems.Artifacts:GetChildren()[3]
+}
+
+-- Создаем переменную для хранения состояния ESP
+local artifactEspEnabled = false
+
+-- Функция для обновления текста на BillboardGui
+local function updateText(targetInstance, statusLabel)
+    local active = targetInstance:GetAttribute("Active")
+    local canCollect = targetInstance:GetAttribute("CanCollect")
+
+    -- Обновляем текст статуса и цвет
+    if active and canCollect then
+        statusLabel.Text = "Status: Active"
+        statusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)  -- Зеленый цвет для активного
+    else
+        statusLabel.Text = "Status: Not Active"
+        statusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)  -- Красный цвет для неактивного
+    end
+end
+
+-- Функция для включения/отключения отображения BillboardGui
+local function updateArtifactEsp()
+    for _, targetInstance in ipairs(targets) do
+        -- Найдем BillboardGui
+        local billboardGui = targetInstance:FindFirstChild("ArtifactText")
+        if billboardGui then
+            -- Включаем/выключаем видимость BillboardGui
+            billboardGui.Enabled = artifactEspEnabled
+        end
+    end
+end
+
+-- Создаем BillboardGui и TextLabel для каждого артефакта
+for _, targetInstance in ipairs(targets) do
+    -- Создаем BillboardGui
+    local billboardGui = Instance.new("BillboardGui")
+    billboardGui.Name = "ArtifactText"
+    billboardGui.Size = UDim2.new(0, 200, 0, 50)  -- Устанавливаем размер для одного лейбла
+    billboardGui.StudsOffset = Vector3.new(0, 2, 0)
+    billboardGui.AlwaysOnTop = true  -- Включаем AlwaysOnTop
+    billboardGui.Parent = targetInstance
+    billboardGui.Enabled = false
+
+    -- Создаем первый TextLabel для имени артефакта (просто текст Artifact)
+    local name = Instance.new("TextLabel")
+    name.BackgroundTransparency = 1
+    name.Font = Enum.Font.Nunito
+    name.Size = UDim2.new(1, 0, 0, 14)
+    name.TextSize = 14
+    name.TextStrokeTransparency = 0.5
+    name.TextColor3 = Color3.fromRGB(0, 85, 255)  -- По умолчанию красный
+    name.Text = "Artifact"  -- Просто "Artifact", без изменений
+    name.Parent = billboardGui
+
+    -- Создаем второй TextLabel для статуса
+    local statusLabel = Instance.new("TextLabel")
+    statusLabel.BackgroundTransparency = 1
+    statusLabel.Font = Enum.Font.Nunito
+    statusLabel.Size = UDim2.new(1, 0, 0, 14)
+    statusLabel.Position = UDim2.new(0, 0, 0, 16)  -- Сдвигаем второй лейбл вниз
+    statusLabel.TextSize = 14
+    statusLabel.TextStrokeTransparency = 0.5
+    statusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)  -- По умолчанию красный
+    statusLabel.Parent = billboardGui
+
+    -- Изначальная установка текста статуса
+    updateText(targetInstance, statusLabel)
+
+    -- Обработчик события изменения атрибутов
+    targetInstance:GetAttributeChangedSignal("Active"):Connect(function()
+        updateText(targetInstance, statusLabel)
+    end)
+    targetInstance:GetAttributeChangedSignal("CanCollect"):Connect(function()
+        updateText(targetInstance, statusLabel)
+    end)
+end
+
+-- Добавляем Toggle для управления отображением
+Section3:AddToggle({
+    text = "Esp Artifacts", 
+    state = false,  -- По умолчанию выключен
+    risky = false,
+    tooltip = "This toggles the ESP for artifacts.", 
+    flag = "Toggle_ArtifactEsp", 
+    callback = function(v)
+        -- Обновляем состояние ESP
+        artifactEspEnabled = v
+        -- Обновляем отображение BillboardGui
+        updateArtifactEsp()
+    end
+})
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+
+local function updateHealthAndDistanceLabel(humanoid, healthLabel, targetCharacter)
+    if not humanoid or not healthLabel or not targetCharacter then return end
+    
+    -- Обновляем здоровье
+    local healthText = "Health: " .. math.floor(humanoid.Health) .. "%"
+
+    -- Рассчитываем дистанцию до игрока
+    local localCharacter = LocalPlayer.Character
+    if localCharacter and localCharacter.PrimaryPart and targetCharacter.PrimaryPart then
+        local distance = (localCharacter.PrimaryPart.Position - targetCharacter.PrimaryPart.Position).Magnitude
+        healthText = healthText .. " | Distance: " .. math.floor(distance) .. "m"
+    end
+
+    healthLabel.Text = healthText
+end
+
+local function addEffectsToCharacter(character, isEnabled)
+    if not character then return end
+
+    local player = Players:GetPlayerFromCharacter(character)
+    if not player or player == LocalPlayer then return end -- Исключаем себя
+
+    -- Удаляем старые эффекты, если есть
+    if character:FindFirstChild("HighlightEffect") then
+        character.HighlightEffect:Destroy()
+    end
+    if character:FindFirstChild("NameTag") then
+        character.NameTag:Destroy()
+    end
+
+    -- Создаем Highlight
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "HighlightEffect"
+    highlight.OutlineColor = Color3.fromRGB(0, 85, 255)
+    highlight.FillColor = Color3.fromRGB(255, 255, 255)
+    highlight.FillTransparency = 1 -- Делаем невидимым
+    highlight.Parent = character
+    highlight.Enabled = isEnabled -- Включаем/выключаем Highlight
+
+    -- Создаем BillboardGui
+    local head = character:FindFirstChild("Head") or character:FindFirstChildOfClass("Part")
+    if not head then return end
+
+    local billboardGui = Instance.new("BillboardGui")
+    billboardGui.Name = "NameTag"
+    billboardGui.Size = UDim2.new(0, 200, 0, 60) -- Увеличиваем высоту для двух строк
+    billboardGui.StudsOffset = Vector3.new(0, 2.5, 0)
+    billboardGui.AlwaysOnTop = true
+    billboardGui.Enabled = isEnabled -- Включаем/выключаем NameTag
+    billboardGui.Parent = head
+
+    -- Создаем текстовый лейбл для имени
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Font = Enum.Font.Nunito
+    nameLabel.Size = UDim2.new(1, 0, 0.5, 0)
+    nameLabel.Position = UDim2.new(0, 0, 0, 0)
+    nameLabel.TextSize = 14
+    nameLabel.TextStrokeTransparency = 0.5
+    nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    nameLabel.Text = player.Name
+    nameLabel.Parent = billboardGui
+
+    -- Создаем текстовый лейбл для здоровья и дистанции
+    local healthLabel = Instance.new("TextLabel")
+    healthLabel.BackgroundTransparency = 1
+    healthLabel.Font = Enum.Font.Nunito
+    healthLabel.Size = UDim2.new(1, 0, 0.5, 0)
+    healthLabel.Position = UDim2.new(0, 0, 0.5, 0)
+    healthLabel.TextSize = 14
+    healthLabel.TextStrokeTransparency = 0.5
+    healthLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    healthLabel.Parent = billboardGui
+
+    -- Следим за изменением здоровья и расстояния
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        updateHealthAndDistanceLabel(humanoid, healthLabel, character)
+        humanoid:GetPropertyChangedSignal("Health"):Connect(function()
+            updateHealthAndDistanceLabel(humanoid, healthLabel, character)
+        end)
+    end
+
+    -- Обновляем дистанцию в реальном времени
+    RunService.RenderStepped:Connect(function()
+        updateHealthAndDistanceLabel(humanoid, healthLabel, character)
+    end)
+end
+
+-- Функция для включения/выключения NameTag и Highlight для всех игроков
+local function toggleNameTagsAndHighlight(isEnabled)
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.Character then
+            local character = player.Character
+            local head = character:FindFirstChild("Head")
+            if head then
+                -- Включаем/выключаем NameTag
+                local nameTag = head:FindFirstChild("NameTag")
+                if nameTag then
+                    nameTag.Enabled = isEnabled
+                else
+                    -- Если NameTag отсутствует, создаем его
+                    addEffectsToCharacter(character, isEnabled)
+                end
+            end
+
+            -- Включаем/выключаем Highlight
+            local highlight = character:FindFirstChild("HighlightEffect")
+            if highlight then
+                highlight.Enabled = isEnabled
+            else
+                -- Если Highlight отсутствует, создаем его
+                addEffectsToCharacter(character, isEnabled)
+            end
+        end
+    end
+end
+
+-- Функция обновления всех игроков при включении/выключении NameTags и Highlight
+local function refreshAllPlayers(isEnabled)
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.Character then
+            addEffectsToCharacter(player.Character, isEnabled)
+        end
+    end
+end
+
+-- Следим за новыми игроками
+local function onPlayerAdded(player)
+    if player == LocalPlayer then return end -- Исключаем себя
+    player.CharacterAdded:Connect(function(character)
+        character:WaitForChild("Head", 10)  -- ждем появления головы
+        addEffectsToCharacter(character, false)  -- Добавляем эффекты с выключенными по дефолту
+    end)
+
+    -- Если персонаж уже есть, добавляем эффекты сразу
+    if player.Character then
+        addEffectsToCharacter(player.Character, false)  -- Добавляем эффекты с выключенными по дефолту
+    end
+end
+
+-- Подключаем к текущим игрокам
+for _, player in ipairs(Players:GetPlayers()) do
+    onPlayerAdded(player)
+end
+
+-- Подключаем к новым игрокам
+Players.PlayerAdded:Connect(onPlayerAdded)
+
+-- Toggle для включения/выключения неймтегов и Highlight
+Section3:AddToggle({
+    text = "Esp Players [This Function Bugged!]",
+    state = false,
+    risky = true,
+    tooltip = "tooltip1",
+    flag = "Toggle_EspPlayer",  -- Используем флаг для контроля
+    callback = function(v)
+        print("Toggle Name Tags and Highlights is now:", v)
+        toggleNameTagsAndHighlight(v)  -- Включаем/выключаем NameTag и Highlight
+        refreshAllPlayers(v)  -- Обновляем всех игроков
+    end
+})
+
+local infClashEnabled = false  -- Флаг включения функции
+local clashStrengthListener = nil  -- Переменная для обработчика событий
+
+local function monitorClashStrength(character)
+    if not character or not infClashEnabled then return end
+
+    local stats = character:FindFirstChild("Stats")
+    if not stats then
+        stats = character:WaitForChild("Stats", 5) -- Ждем появления "Stats"
+        if not stats then return end
+    end
+
+    local clashStrength = stats:FindFirstChild("ClashStrength")
+    if not clashStrength then
+        clashStrength = stats:WaitForChild("ClashStrength", 5) -- Ждем "ClashStrength"
+        if not clashStrength then return end
+    end
+
+    -- Если раньше был обработчик, отключаем его перед созданием нового
+    if clashStrengthListener then
+        clashStrengthListener:Disconnect()
+        clashStrengthListener = nil
+    end
+
+    -- Следим за изменением ClashStrength и поддерживаем его на 100
+    clashStrengthListener = clashStrength.Changed:Connect(function()
+        if infClashEnabled and clashStrength.Value ~= 100 then
+            clashStrength.Value = 100
+        end
+    end)
+
+    -- Устанавливаем значение сразу при респавне
+    clashStrength.Value = 100
+end
+
+Section1:AddToggle({
+    text = "Inf Clash",
+    state = false,
+    tooltip = "Toggle Infinite ClashStrength",
+    flag = "Inf_Clash_Toggle",
+    callback = function(enabled)
+        infClashEnabled = enabled -- Устанавливаем глобальный флаг
+
+        local player = game.Players.LocalPlayer
+        if not player then return end
+
+        if enabled then
+            -- Запускаем для текущего персонажа, если он есть
+            if player.Character then
+                monitorClashStrength(player.Character)
+            end
+
+            -- Следим за респавном персонажа
+            player.CharacterAdded:Connect(monitorClashStrength)
+        else
+            -- Выключаем слежку
+            if clashStrengthListener then
+                clashStrengthListener:Disconnect()
+                clashStrengthListener = nil
+            end
+        end
+    end
+})
+
 
 local Time = (string.format("%."..tostring(Decimals).."f", os.clock() - Clock))
 library:SendNotification(("Loaded In "..tostring(Time)), 6)
