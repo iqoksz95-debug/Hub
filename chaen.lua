@@ -1816,6 +1816,21 @@ Section1:AddToggle({
 
 Section2:AddButton({
     enabled = true,
+    text = "Reset Me",
+    tooltip = "Thats kill you ye",
+    confirm = true,
+    risky = false,
+    callback = function()
+local player = game.Players.LocalPlayer
+local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+if humanoid then
+    humanoid.Health = 0
+end
+    end
+})
+
+Section2:AddButton({
+    enabled = true,
     text = "Server Joiner [Job id]",
     tooltip = "",
     confirm = false,
@@ -1882,7 +1897,7 @@ end)
     end
 })
 
-Section1:AddButton({
+Section2:AddButton({
     enabled = true,
     text = "Join Dev Sever",
     tooltip = "",
