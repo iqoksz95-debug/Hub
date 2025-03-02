@@ -1814,6 +1814,73 @@ Section1:AddToggle({
     end
 })
 
+Section2:AddButton({
+    enabled = true,
+    text = "Server Joiner [Job id]",
+    tooltip = "",
+    confirm = false,
+    risky = false,
+    callback = function()
+local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
+local player = Players.LocalPlayer
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = player:WaitForChild("PlayerGui")
+
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 300, 0, 150)
+Frame.Position = UDim2.new(0.5, -150, 0.5, -75)
+Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Frame.BackgroundTransparency = 0.5
+Frame.Parent = ScreenGui
+
+local Title = Instance.new("TextLabel")
+Title.Text = "Chain Server Joiner"
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundTransparency = 1
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 20
+Title.Parent = Frame
+
+local CloseButton = Instance.new("TextButton")
+CloseButton.Text = "X"
+CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Position = UDim2.new(1, -30, 0, 0)
+CloseButton.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.Parent = Frame
+
+local JobIdBox = Instance.new("TextBox")
+JobIdBox.Size = UDim2.new(0.8, 0, 0, 30)
+JobIdBox.Text = "Job id here"
+JobIdBox.Position = UDim2.new(0.1, 0, 0.4, 0)
+JobIdBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+JobIdBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+JobIdBox.ClearTextOnFocus = false
+JobIdBox.Parent = Frame
+
+local JoinButton = Instance.new("TextButton")
+JoinButton.Text = "Join"
+JoinButton.Size = UDim2.new(0.5, 0, 0, 30)
+JoinButton.Position = UDim2.new(0.25, 0, 0.7, 0)
+JoinButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+JoinButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+JoinButton.Parent = Frame
+
+JoinButton.MouseButton1Click:Connect(function()
+    local jobId = JobIdBox.Text
+    if jobId ~= "" then
+        TeleportService:TeleportToPlaceInstance(13977939077, jobId, player)
+    end
+end)
+
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+    end
+})
 
 local Time = (string.format("%."..tostring(Decimals).."f", os.clock() - Clock))
 library:SendNotification(("Loaded In "..tostring(Time)), 6)
