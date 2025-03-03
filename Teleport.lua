@@ -82,8 +82,11 @@ playerList.BackgroundTransparency = 0.3
 playerList.Visible = false
 playerList.ZIndex = 10
 playerList.Parent = dropdown
-playerList.CanvasSize = UDim2.new(0, 0, 3.3, 0)
 playerList.ScrollBarThickness = 6
+
+local listLayout = Instance.new("UIListLayout")
+listLayout.Parent = playerList
+listLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
 selectedPlayer.MouseButton1Click:Connect(function()
     playerList.Visible = not playerList.Visible
@@ -96,22 +99,28 @@ local function updatePlayerList()
         end
     end
     
-    for _, player in ipairs(game.Players:GetPlayers()) do
+    local players = game.Players:GetPlayers()
+    local playerCount = 0
+
+    for _, player in ipairs(players) do
         if player ~= game.Players.LocalPlayer then
+            playerCount = playerCount + 1
             local playerButton = Instance.new("TextButton")
             playerButton.Size = UDim2.new(1, 0, 0, 25)
             playerButton.Text = player.Name
             playerButton.TextColor3 = Color3.fromRGB(255, 255, 255)
             playerButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             playerButton.Parent = playerList
-playerButton.ZIndex = 11
-            
+            playerButton.ZIndex = 11
+
             playerButton.MouseButton1Click:Connect(function()
                 selectedPlayer.Text = player.Name
                 playerList.Visible = false
             end)
         end
     end
+    
+    playerList.CanvasSize = UDim2.new(0, 0, 0, playerCount * 30)
 end
 
 updatePlayerList()
