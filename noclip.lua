@@ -69,6 +69,13 @@ statusLabel.TextSize = 24
 statusLabel.Parent = mainWindow
 statusLabel.TextEditable = false
 
+statusLabel.MouseEnter:Connect(function()
+    statusLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+end)
+statusLabel.MouseLeave:Connect(function()
+    statusLabel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+end)
+
 -- Кнопка старта
 local startButton = Instance.new("TextButton")
 startButton.Size = UDim2.new(0.8, 0, 0, 50)
@@ -80,6 +87,13 @@ startButton.Font = Enum.Font.SourceSansBold
 startButton.TextSize = 20
 startButton.Parent = mainWindow
 
+startButton.MouseEnter:Connect(function()
+    startButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+end)
+startButton.MouseLeave:Connect(function()
+    startButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+end)
+
 -- Кнопка остановки
 local stopButton = Instance.new("TextButton")
 stopButton.Size = UDim2.new(0.8, 0, 0, 50)
@@ -90,6 +104,13 @@ stopButton.Text = "Выключить Noclip"
 stopButton.Font = Enum.Font.SourceSansBold
 stopButton.TextSize = 20
 stopButton.Parent = mainWindow
+
+stopButton.MouseEnter:Connect(function()
+    stopButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+end)
+stopButton.MouseLeave:Connect(function()
+    stopButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+end)
 
 -- Noclip функционал
 local noclipEnabled = false
