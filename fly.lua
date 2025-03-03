@@ -68,6 +68,13 @@ speedInput.Font = Enum.Font.SourceSansBold
 speedInput.TextSize = 24
 speedInput.Parent = mainWindow
 
+speedInput.MouseEnter:Connect(function()
+    speedInput.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+end)
+speedInput.MouseLeave:Connect(function()
+    speedInput.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+end)
+
 local inputCorner = Instance.new("UICorner")
 inputCorner.CornerRadius = UDim.new(0, 4)
 inputCorner.Parent = speedInput
@@ -176,6 +183,13 @@ startButton.Parent = mainWindow
 
 startButton.MouseButton1Click:Connect(startFly)
 
+startButton.MouseEnter:Connect(function()
+    startButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+end)
+startButton.MouseLeave:Connect(function()
+    startButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+end)
+
 -- Кнопка остановки
 local stopButton = Instance.new("TextButton")
 stopButton.Size = UDim2.new(0.8, 0, 0, 50)
@@ -188,6 +202,13 @@ stopButton.TextSize = 20
 stopButton.Parent = mainWindow
 
 stopButton.MouseButton1Click:Connect(stopFly)
+
+stopButton.MouseEnter:Connect(function()
+    stopButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+end)
+stopButton.MouseLeave:Connect(function()
+    stopButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+end)
 
 -- Бинд на скрытие и показ окна с анимацией
 local guiVisible = true
