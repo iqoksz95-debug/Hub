@@ -609,28 +609,23 @@ local function removeESP(targetInstance)
     end
 end
 
--- Отслеживание появления и исчезновения модели CHAIN
-local currentChainInstance = nil
+-- Переменная для отслеживания состояния toggle
+local espActive = false
 
+-- Отслеживание появления и исчезновения модели CHAIN
 local function trackChainModel()
     while true do
         local target = Workspace.Misc.AI:FindFirstChild("CHAIN")
 
-        if target ~= currentChainInstance then
-            if target then
-                -- Если модель появилась
-                if LeftVisual.flags["EspChainToggle"] then  -- Используем флаг из toggle
-                    addHighlightWithTextOnHead(target)
-                end
-                currentChainInstance = target
-            elseif currentChainInstance then
-                -- Если модель исчезла
-                removeESP(currentChainInstance)
-                currentChainInstance = nil
+        if target then
+            if espActive then
+                addHighlightWithTextOnHead(target)
+            else
+                removeESP(target)
             end
         end
 
-        wait(1) -- Добавляем паузу для предотвращения перегрузки процессора
+        wait(1) -- Пауза для предотвращения перегрузки процессора
     end
 end
 
@@ -640,10 +635,12 @@ LeftVisual:AddToggle("EspChainToggle", {
     Default = false, -- Значение по умолчанию
     Tooltip = "Toggle ESP for the CHAIN monster", -- Подсказка
     Callback = function(Value)
+        espActive = Value  -- Обновление состояния toggle
+
         -- Если toggle активирован
         local target = Workspace.Misc.AI:FindFirstChild("CHAIN")
         if target then
-            if Value then
+            if espActive then
                 addHighlightWithTextOnHead(target)
             else
                 removeESP(target)
@@ -654,6 +651,7 @@ LeftVisual:AddToggle("EspChainToggle", {
 
 -- Запуск отслеживания модели CHAIN
 spawn(trackChainModel)
+
 
 -- Флаг для отслеживания состояния ESP
 local espEnabled = false
