@@ -72,6 +72,14 @@ local inputCorner = Instance.new("UICorner")
 inputCorner.CornerRadius = UDim.new(0, 4)
 inputCorner.Parent = speedInput
 
+speedInput.MouseEnter:Connect(function()
+    speedInput.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+end)
+speedInput.MouseLeave:Connect(function()
+    speedInput.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+end)
+
+
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
@@ -96,6 +104,13 @@ startButton.Font = Enum.Font.SourceSansBold
 startButton.TextSize = 20
 startButton.Parent = mainWindow
 
+startButton.MouseEnter:Connect(function()
+    startButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+end)
+startButton.MouseLeave:Connect(function()
+    startButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+end)
+
 startButton.MouseButton1Click:Connect(function()
     local newSpeed = tonumber(speedInput.Text)
     if newSpeed and newSpeed >= 16 and newSpeed <= 300 then
@@ -115,6 +130,13 @@ stopButton.Text = "Выключить скорость"
 stopButton.Font = Enum.Font.SourceSansBold
 stopButton.TextSize = 20
 stopButton.Parent = mainWindow
+
+stopButton.MouseEnter:Connect(function()
+    stopButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+end)
+stopButton.MouseLeave:Connect(function()
+    stopButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+end)
 
 stopButton.MouseButton1Click:Connect(function()
     humanoid.WalkSpeed = 16 -- стандартная скорость
