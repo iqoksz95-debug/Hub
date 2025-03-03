@@ -62,8 +62,14 @@ Tabs.PlayerTab:Button({
 
 Tabs.PlayerTab:Button({
     Title = "IqokczHubNoclip",
-    Desc = "You can't fast noclip, bro",
+    Desc = "YOU STUPID",
     Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/iqoksz95-debug/Hub/refs/heads/main/noclip.lua"))() end
+})
+
+Tabs.PlayerTab:Button({
+    Title = "IqokczHubEsp",
+    Desc = "NOOO BRO",
+    Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/iqoksz95-debug/Hub/refs/heads/main/esp.lua"))() end
 })
 
 Tabs.PlayerTab:Button({
