@@ -160,3 +160,7 @@ userInputService.InputBegan:Connect(function(input, gameProcessed)
         end
     end
 end)
+
+-- Меню сохраняется после смерти
+screenGui.ResetOnSpawn = false
+screenGui.Parent = game.CoreGui
