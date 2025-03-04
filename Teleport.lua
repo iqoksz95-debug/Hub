@@ -1,6 +1,6 @@
 -- Создаем ScreenGui
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "SpeedGui"
+screenGui.Name = "TeleportGui"
 screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
 -- Создаем главное окно
@@ -178,3 +178,7 @@ while true do
     updatePlayerList()
     wait(10)
 end
+
+-- Меню сохраняется после смерти
+screenGui.ResetOnSpawn = false
+screenGui.Parent = game.CoreGui
