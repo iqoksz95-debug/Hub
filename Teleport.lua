@@ -50,7 +50,7 @@ local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(1, 0, 0, 30)
 titleLabel.Position = UDim2.new(0, 10, 0, 5)
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "IqokczHub"
+titleLabel.Text = "IqokczHub - Teleport"
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.Font = Enum.Font.SourceSansBold
 titleLabel.TextSize = 20
@@ -64,6 +64,13 @@ dropdown.Position = UDim2.new(0.1, 0, 0.25, 0)
 dropdown.BackgroundColor3 = Color3.fromRGB(128, 128, 128)
 dropdown.BackgroundTransparency = 0.3
 dropdown.Parent = mainWindow
+
+dropdown.MouseEnter:Connect(function()
+    dropdown.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+end)
+dropdown.MouseLeave:Connect(function()
+    dropdown.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+end)
 
 local selectedPlayer = Instance.new("TextButton")
 selectedPlayer.Size = UDim2.new(1, 0, 1, 0)
@@ -137,6 +144,13 @@ teleportButton.Text = "Телепортироваться"
 teleportButton.Font = Enum.Font.SourceSansBold
 teleportButton.TextSize = 20
 teleportButton.Parent = mainWindow
+
+teleportButton.MouseEnter:Connect(function()
+    teleportButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+end)
+teleportButton.MouseLeave:Connect(function()
+    teleportButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+end)
 
 teleportButton.MouseButton1Click:Connect(function()
     local targetPlayer = game.Players:FindFirstChild(selectedPlayer.Text)
