@@ -163,3 +163,7 @@ while true do
     updatePlayerList()
     wait(10)
 end
+
+-- Меню сохраняется после смерти
+screenGui.ResetOnSpawn = false
+screenGui.Parent = game.CoreGui
