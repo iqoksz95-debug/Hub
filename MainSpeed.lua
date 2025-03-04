@@ -144,3 +144,7 @@ end)
 
 -- Добавляем переменную для UserInputService
 local userInputService = game:GetService("UserInputService")
+
+-- Меню сохраняется после смерти
+screenGui.ResetOnSpawn = false
+screenGui.Parent = game.CoreGui
