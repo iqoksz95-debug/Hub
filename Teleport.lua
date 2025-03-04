@@ -159,21 +159,6 @@ teleportButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Бинд на скрытие и показ окна с анимацией
-local guiVisible = true
-local userInputService = game:GetService("UserInputService")
-userInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    if input.KeyCode == Enum.KeyCode.K then 
-        guiVisible = not guiVisible
-        if guiVisible then
-            mainWindow:TweenPosition(UDim2.new(0.35, 0, 0.3, 0), "Out", "Quad", 0.5, true)
-        else
-            mainWindow:TweenPosition(UDim2.new(0.35, 0, -0.5, 0), "Out", "Quad", 0.5, true)
-        end
-    end
-end)
-
 while true do
     updatePlayerList()
     wait(10)
