@@ -102,7 +102,7 @@ Tabs.UniversalTab:Button({
 
 Tabs.MiscTab:Button({
     Title = "Dex",
-    Desc = "You learn, bro?",
+    Desc = "You admin??",
     Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))() end
 })
 
@@ -111,6 +111,13 @@ Tabs.MiscTab:Button({
     Desc = "Oh, you hacker!",
     Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))() end
 })
+
+Tabs.MiscTab:Button({
+    Title = "IqokczHub",
+    Desc = "Bruh",
+    Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/iqoksz95-debug/Hub/refs/heads/main/IqokczHubPlayer.lua"))() end
+})
+
 
 
 Tabs.ToggleTab:Toggle({
