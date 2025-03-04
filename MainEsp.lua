@@ -53,21 +53,28 @@ closeButton.MouseLeave:Connect(function()
     closeButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 end)
 
+
 closeButton.MouseButton1Click:Connect(function()
     screenGui:Destroy()
 end)
 
 -- Поле для отображения статуса
-local statusLabel = Instance.new("TextBox")
+local statusLabel = Instance.new("TextLabel")
 statusLabel.Size = UDim2.new(0.8, 0, 0, 50)
 statusLabel.Position = UDim2.new(0.1, 0, 0.25, 0)
 statusLabel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 statusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-statusLabel.PlaceholderText = "ESP: Выключен"
+statusLabel.Text = "ESP: Выключен"
 statusLabel.Font = Enum.Font.SourceSansBold
 statusLabel.TextSize = 24
 statusLabel.Parent = mainWindow
-statusLabel.TextEditable = false
+
+statusLabel.MouseEnter:Connect(function()
+    statusLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+end)
+statusLabel.MouseLeave:Connect(function()
+    statusLabel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+end)
 
 -- Кнопка включения ESP
 local startButton = Instance.new("TextButton")
@@ -105,58 +112,92 @@ stopButton.MouseLeave:Connect(function()
     stopButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 end)
 
-
 local espEnabled = false
-local espColor = Color3.fromRGB(255, 0, 0) -- Красная обводка по умолчанию
+local espColor = Color3.fromRGB(255, 0, 0)
 
-local function applyESP(character)
-    for _, part in ipairs(character:GetChildren()) do
-        if part:IsA("BasePart") then
-            local highlight = Instance.new("Highlight")
-            highlight.Parent = part
-            highlight.FillTransparency = 1
-            highlight.OutlineColor = espColor
-            highlight.Name = "ESP"
+local function applyESP(character, player)
+    if not character:FindFirstChild("ESP") then
+        local highlight = Instance.new("Highlight")
+        highlight.Name = "ESP"
+        highlight.FillTransparency = 1
+        highlight.OutlineColor = espColor
+        highlight.Parent = character
+    end
+    
+    if not character:FindFirstChild("ESPName") then
+        local billboard = Instance.new("BillboardGui")
+        billboard.Name = "ESPName"
+        billboard.Size = UDim2.new(0, 100, 0, 50)
+        billboard.StudsOffset = Vector3.new(0, 5, 0)
+        billboard.AlwaysOnTop = true
+        billboard.Parent = character
+
+        local nameLabel = Instance.new("TextLabel")
+        nameLabel.Size = UDim2.new(1, 0, 1, 0)
+        nameLabel.BackgroundTransparency = 1
+        nameLabel.Text = player.Name
+        nameLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+        nameLabel.Font = Enum.Font.SourceSansBold
+        nameLabel.TextSize = 14
+        nameLabel.Parent = billboard
+    end
+end
+
+local function removeESP(character)
+    if character then
+        local esp = character:FindFirstChild("ESP")
+        if esp then
+            esp:Destroy()
         end
+        local espName = character:FindFirstChild("ESPName")
+        if espName then
+            espName:Destroy()
+        end
+    end
+end
+
+local function onCharacterAdded(character, player)
+    if espEnabled then
+        applyESP(character, player)
+    end
+    local humanoid = character:FindFirstChild("Humanoid")
+    if humanoid then
+        humanoid.Died:Connect(function()
+            removeESP(character)
+        end)
     end
 end
 
 local function createESP(player)
     if player ~= game.Players.LocalPlayer then
-        if player.Character then
-            applyESP(player.Character)
-        end
         player.CharacterAdded:Connect(function(character)
-            wait(0.5)
-            applyESP(character)
+            onCharacterAdded(character, player)
         end)
+        if player.Character then
+            onCharacterAdded(player.Character, player)
+        end
     end
 end
 
 local function toggleESP(state)
     espEnabled = state
-    if espEnabled then
-        statusLabel.Text = "ESP: Включен"
-        statusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
-        for _, player in ipairs(game.Players:GetPlayers()) do
+    statusLabel.Text = espEnabled and "ESP: Включен" or "ESP: Выключен"
+    statusLabel.TextColor3 = espEnabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+    
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        if espEnabled then
             createESP(player)
-        end
-    else
-        statusLabel.Text = "ESP: Выключен"
-        statusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-        for _, player in ipairs(game.Players:GetPlayers()) do
-            if player.Character then
-                for _, part in ipairs(player.Character:GetChildren()) do
-                    if part:FindFirstChild("ESP") then
-                        part.ESP:Destroy()
-                    end
-                end
-            end
+        else
+            removeESP(player.Character)
         end
     end
 end
 
 game.Players.PlayerAdded:Connect(createESP)
+game.Players.PlayerRemoving:Connect(function(player)
+    removeESP(player.Character)
+end)
+
 for _, player in ipairs(game.Players:GetPlayers()) do
     createESP(player)
 end
@@ -168,3 +209,7 @@ end)
 stopButton.MouseButton1Click:Connect(function()
     toggleESP(false)
 end)
+
+-- Меню сохраняется после смерти
+screenGui.ResetOnSpawn = false
+screenGui.Parent = game.CoreGui
