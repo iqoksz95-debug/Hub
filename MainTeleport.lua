@@ -1,6 +1,6 @@
 -- Создаем ScreenGui
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "SpeedGui"
+screenGui.Name = "TeleportGui"
 screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
 -- Создаем главное окно
