@@ -107,7 +107,7 @@ end)
 
 
 local espEnabled = false
-local espColor = Color3.fromRGB(255, 0, 0) -- Красная обводка по умолчанию
+local espColor = Color3.fromRGB(0, 0, 255)
 
 local function applyESP(character)
     for _, part in ipairs(character:GetChildren()) do
