@@ -145,3 +145,7 @@ end)
 stopButton.MouseButton1Click:Connect(function()
     toggleNoclip(false)
 end)
+
+-- Меню сохраняется после смерти
+screenGui.ResetOnSpawn = false
+screenGui.Parent = game.CoreGui
