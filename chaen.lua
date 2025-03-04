@@ -42,55 +42,136 @@ local Tabs = {
 }
 
 local LeftMain = Tabs.Main:AddLeftGroupbox('Main')
+local RightMain = Tabs.Main:AddRightGroupbox('Player')
 local LeftTeleport = Tabs.Teleport:AddLeftGroupbox('Teleports')
 local LeftMisc = Tabs.Misc:AddLeftGroupbox('Misc')
 local LeftVisual = Tabs.Visual:AddLeftGroupbox('Visuals')
 
-local infStaminaEnabled = false
+local infStaminaEnabled = false  -- Флаг включения функции
+local staminaListener = nil  -- Переменная для обработчика событий
 
-LeftMain:AddToggle('MyToggle', {
+local function monitorStamina(character)
+    if not character or not infStaminaEnabled then return end
+
+    local stats = character:FindFirstChild("Stats")
+    if not stats then
+        stats = character:WaitForChild("Stats", 5) -- Ждем появления "Stats"
+        if not stats then return end
+    end
+
+    local stamina = stats:FindFirstChild("Stamina")
+    if not stamina then
+        stamina = stats:WaitForChild("Stamina", 5) -- Ждем "Stamina"
+        if not stamina then return end
+    end
+
+    -- Если раньше был обработчик, отключаем его перед созданием нового
+    if staminaListener then
+        staminaListener:Disconnect()
+        staminaListener = nil
+    end
+
+    -- Следим за изменением выносливости и поддерживаем её на 100
+    staminaListener = stamina.Changed:Connect(function()
+        if infStaminaEnabled and stamina.Value ~= 100 then
+            stamina.Value = 100
+        end
+    end)
+
+    -- Устанавливаем значение сразу при респавне
+    stamina.Value = 100
+end
+
+LeftMain:AddToggle('InfStamina', {
     Text = 'Inf Stamina',
     Default = false,
-    Tooltip = 'Unlimited Stamina'
+    Tooltip = 'Unlimited Stamina',
 }):OnChanged(function(enabled)
-    infStaminaEnabled = enabled -- Устанавливаем флаг
+    infStaminaEnabled = enabled -- Устанавливаем глобальный флаг
+
+    local player = game.Players.LocalPlayer
+    if not player then return end
 
     if enabled then
-        -- Создаем новый поток для бесконечной выносливости
-        task.spawn(function()
-            local player = game.Players.LocalPlayer
-            while infStaminaEnabled do
-                if player and player.Character and player.Character:FindFirstChild("Stats") and player.Character.Stats:FindFirstChild("Stamina") then
-                    player.Character.Stats.Stamina.Value = 100
-                end
-                task.wait(3.5) -- Пауза между обновлениями
-            end
-        end)
+        -- Запускаем для текущего персонажа, если он есть
+        if player.Character then
+            monitorStamina(player.Character)
+        end
+
+        -- Следим за респавном персонажа
+        player.CharacterAdded:Connect(monitorStamina)
+    else
+        -- Выключаем слежку
+        if staminaListener then
+            staminaListener:Disconnect()
+            staminaListener = nil
+        end
     end
 end)
 
-local combatStaminaEnabled = false
+
+local combatStaminaEnabled = false  -- Флаг включения функции
+local combatStaminaListener = nil  -- Переменная для обработчика событий
+
+local function monitorCombatStamina(character)
+    if not character or not combatStaminaEnabled then return end
+
+    local stats = character:FindFirstChild("Stats")
+    if not stats then
+        stats = character:WaitForChild("Stats", 5) -- Ждем появления "Stats"
+        if not stats then return end
+    end
+
+    local combatStamina = stats:FindFirstChild("CombatStamina")
+    if not combatStamina then
+        combatStamina = stats:WaitForChild("CombatStamina", 5) -- Ждем "CombatStamina"
+        if not combatStamina then return end
+    end
+
+    -- Если раньше был обработчик, отключаем его перед созданием нового
+    if combatStaminaListener then
+        combatStaminaListener:Disconnect()
+        combatStaminaListener = nil
+    end
+
+    -- Следим за изменением боевой выносливости и поддерживаем её на 100
+    combatStaminaListener = combatStamina.Changed:Connect(function()
+        if combatStaminaEnabled and combatStamina.Value ~= 100 then
+            combatStamina.Value = 100
+        end
+    end)
+
+    -- Устанавливаем значение сразу при респавне
+    combatStamina.Value = 100
+end
 
 LeftMain:AddToggle('CombatStaminaToggle', {
     Text = 'Inf Combat Stamina',
     Default = false,
-    Tooltip = 'Unlimited Combat Stamina'
+    Tooltip = 'Unlimited Combat Stamina',
 }):OnChanged(function(enabled)
-    combatStaminaEnabled = enabled -- Устанавливаем флаг
+    combatStaminaEnabled = enabled -- Устанавливаем глобальный флаг
+
+    local player = game.Players.LocalPlayer
+    if not player then return end
 
     if enabled then
-        -- Запускаем бесконечный цикл в отдельном потоке
-        task.spawn(function()
-            local player = game.Players.LocalPlayer
-            while combatStaminaEnabled do
-                if player and player.Character and player.Character:FindFirstChild("Stats") and player.Character.Stats:FindFirstChild("CombatStamina") then
-                    player.Character.Stats.CombatStamina.Value = 100
-                end
-                task.wait(3.5) -- Пауза между обновлениями
-            end
-        end)
+        -- Запускаем для текущего персонажа, если он есть
+        if player.Character then
+            monitorCombatStamina(player.Character)
+        end
+
+        -- Следим за респавном персонажа
+        player.CharacterAdded:Connect(monitorCombatStamina)
+    else
+        -- Выключаем слежку
+        if combatStaminaListener then
+            combatStaminaListener:Disconnect()
+            combatStaminaListener = nil
+        end
     end
 end)
+
 
 local scrapContainer = game.Workspace.Misc.Zones.LootingItems.Scrap
 local players = game:GetService("Players")
@@ -514,18 +595,36 @@ else
     print("ProximityPrompt not found, waiting for it to load...")
 end
 
+local TextChatService = game:GetService("TextChatService")
+
+-- Добавим Toggle для управления окном чата
+LeftMain:AddToggle('ChatToggle', {
+    Text = 'Toggle Chat Window',  -- Текст для переключателя
+    Default = TextChatService.ChatWindowConfiguration.Enabled,  -- Устанавливаем начальное состояние на текущее состояние чата
+    Tooltip = 'Enable or disable the chat window',  -- Подсказка при наведении
+    Callback = function(Value)
+        -- Включаем или отключаем окно чата в зависимости от состояния переключателя
+        TextChatService.ChatWindowConfiguration.Enabled = Value
+        print('[cb] Chat window toggled to:', Value)
+    end
+})
+
+
 local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+
+local espActive = false
+local currentTarget = nil  -- Текущая модель CHAIN
 
 -- Функция для добавления Highlight и текстовой информации над головой
 local function addHighlightWithTextOnHead(targetInstance)
     if targetInstance:FindFirstChild("esplight") then
-        warn(targetInstance.Name .. " уже имеет esplight!")
         return
     end
 
     local head = targetInstance:FindFirstChild("Head")
     if not head then
-        warn(targetInstance.Name .. " не имеет части Head!")
         return
     end
 
@@ -595,6 +694,8 @@ end
 
 -- Функция для удаления ESP
 local function removeESP(targetInstance)
+    if not targetInstance then return end
+
     local highlight = targetInstance:FindFirstChild("esplight")
     if highlight then
         highlight:Destroy()
@@ -609,48 +710,54 @@ local function removeESP(targetInstance)
     end
 end
 
--- Переменная для отслеживания состояния toggle
-local espActive = false
-
--- Отслеживание появления и исчезновения модели CHAIN
+-- Функция для отслеживания модели CHAIN
 local function trackChainModel()
-    while true do
+    RunService.Heartbeat:Connect(function()
         local target = Workspace.Misc.AI:FindFirstChild("CHAIN")
 
-        if target then
-            if espActive then
-                addHighlightWithTextOnHead(target)
-            else
-                removeESP(target)
+        if target ~= currentTarget then
+            if currentTarget then
+                removeESP(currentTarget)
             end
+            currentTarget = target
         end
 
-        wait(1) -- Пауза для предотвращения перегрузки процессора
-    end
+        if espActive and currentTarget and not currentTarget:FindFirstChild("esplight") then
+            addHighlightWithTextOnHead(currentTarget)
+            -- Показываем уведомление, когда появляется новый CHAIN
+            if currentTarget then
+                Library:Notify("CHAIN model detected!", 2)
+            end
+        end
+    end)
 end
 
 -- Добавление Toggle
 LeftVisual:AddToggle("EspChainToggle", {
     Text = "Esp Chain",
-    Default = false, -- Значение по умолчанию
-    Tooltip = "Toggle ESP for the CHAIN monster", -- Подсказка
+    Default = false,
+    Tooltip = "Toggle ESP for the CHAIN monster",
     Callback = function(Value)
-        espActive = Value  -- Обновление состояния toggle
+        espActive = Value
 
-        -- Если toggle активирован
         local target = Workspace.Misc.AI:FindFirstChild("CHAIN")
         if target then
             if espActive then
                 addHighlightWithTextOnHead(target)
+                -- Показываем уведомление при активации ESP
+                Library:Notify("ESP for CHAIN activated!", 2)
             else
                 removeESP(target)
+                -- Уведомление при отключении ESP
+                Library:Notify("ESP for CHAIN deactivated!", 2)
             end
         end
     end
 })
 
 -- Запуск отслеживания модели CHAIN
-spawn(trackChainModel)
+task.spawn(trackChainModel)
+
 
 
 -- Флаг для отслеживания состояния ESP
@@ -779,6 +886,18 @@ local function updateArtifactEsp()
     end
 end
 
+-- Функция для отправки уведомлений
+local function sendArtifactNotification(targetInstance)
+    local active = targetInstance:GetAttribute("Active")
+    local canCollect = targetInstance:GetAttribute("CanCollect")
+
+    if active and canCollect then
+        Library:Notify("Artifact appeared!", 2)  -- Уведомление о появлении артефакта
+    elseif not active and not canCollect then
+        Library:Notify("Artifact collected!", 2)  -- Уведомление о том, что артефакт собран
+    end
+end
+
 -- Создаем BillboardGui и TextLabel для каждого артефакта
 for _, targetInstance in ipairs(targets) do
     -- Создаем BillboardGui
@@ -818,9 +937,11 @@ for _, targetInstance in ipairs(targets) do
     -- Обработчик события изменения атрибутов
     targetInstance:GetAttributeChangedSignal("Active"):Connect(function()
         updateText(targetInstance, statusLabel)
+        sendArtifactNotification(targetInstance)
     end)
     targetInstance:GetAttributeChangedSignal("CanCollect"):Connect(function()
         updateText(targetInstance, statusLabel)
+        sendArtifactNotification(targetInstance)
     end)
 end
 
@@ -836,6 +957,7 @@ LeftVisual:AddToggle('Esp_Artifacts', {
         updateArtifactEsp()
     end
 })
+
 
 local MyButton1 = LeftTeleport:AddButton({
     Text = 'End map', 
@@ -1149,56 +1271,7 @@ local MyButton6 = LeftMisc:AddButton({
 local MyButton7 = LeftMisc:AddButton({
     Text = 'Aimbot [Press H]',
     Func = function()
-        local Workspace = game:GetService("Workspace")
-        local RunService = game:GetService("RunService")
-        local UserInputService = game:GetService("UserInputService")
-        local MiscFolder = Workspace:WaitForChild("Misc")
-        local AIFolder = MiscFolder:WaitForChild("AI")
-        local Camera = Workspace.CurrentCamera
-        
-        local CHAIN
-        local aimbot_toggle = false
-
-        local lookAt = function(cframe)
-            local lookAtPos = CFrame.new(Camera.CFrame.Position, cframe.Position)
-            Camera.CFrame = lookAtPos
-        end
-
-        local getChain = function()
-            if CHAIN then
-                return CHAIN
-            end
-            local chosen
-            for _, child in AIFolder:GetChildren() do
-                local chainModel = child
-                local rootPart = chainModel:FindFirstChild("HumanoidRootPart")
-                if rootPart then
-                    chosen = chainModel
-                end
-            end
-            return chosen
-        end
-
-        local onRender = function()
-            CHAIN = getChain()
-            if CHAIN ~= nil then
-                if aimbot_toggle then
-                    lookAt(CHAIN:GetPivot())
-                end
-            end
-        end
-
-        -- Toggle the aimbot state when the player presses H
-        UserInputService.InputBegan:Connect(function(input)
-            if input.KeyCode == Enum.KeyCode.H then
-                aimbot_toggle = not aimbot_toggle -- Toggle the state of aimbot
-            end
-        end)
-
-        -- Connect the RenderStepped function to keep updating camera position
-        RunService.RenderStepped:Connect(function()
-            onRender()
-        end)
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/usumat300/Chain/refs/heads/main/aimbot.lua", true))()
     end,
     DoubleClick = false,
     Tooltip = 'Press H to toggle aimbot'
@@ -1331,6 +1404,18 @@ local MyButton = LeftMisc:AddButton({
     Tooltip = 'No Fog and FullBright lighting'
 })
 
+local MyButton = RightMain:AddButton({
+    Text = 'Reset',
+    Func = function()
+        local player = game.Players.LocalPlayer
+        local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.Health = 0 -- Force respawn by setting health to 0
+        end
+    end,
+    DoubleClick = false,
+    Tooltip = 'Click to reset your character (respawn)'
+})
 
 -- Ui Settings
 local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
