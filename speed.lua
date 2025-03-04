@@ -145,20 +145,6 @@ end)
 -- Добавляем переменную для UserInputService
 local userInputService = game:GetService("UserInputService")
 
--- Бинд на скрытие и показ окна с анимацией
-local guiVisible = true
-userInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    if input.KeyCode == Enum.KeyCode.H then
-        guiVisible = not guiVisible
-        if guiVisible then
-            mainWindow:TweenPosition(UDim2.new(0.35, 0, 0.3, 0), "Out", "Quad", 0.5, true)
-        else
-            mainWindow:TweenPosition(UDim2.new(0.35, 0, -0.5, 0), "Out", "Quad", 0.5, true)
-        end
-    end
-end)
-
 -- Меню сохраняется после смерти
 screenGui.ResetOnSpawn = false
 screenGui.Parent = game.CoreGui
