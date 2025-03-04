@@ -71,3 +71,14 @@ createButton("FlyButton", UDim2.new(0.1, 0, 0.35, 0), "Fly", function() loadExte
 createButton("SpeedButton", UDim2.new(0.1, 0, 0.5, 0), "Speed", function() loadExternalScript("https://raw.githubusercontent.com/iqoksz95-debug/Hub/refs/heads/main/MainSpeed.lua") end)
 createButton("NoclipButton", UDim2.new(0.1, 0, 0.65, 0), "Noclip", function() loadExternalScript("https://raw.githubusercontent.com/iqoksz95-debug/Hub/refs/heads/main/MainNoclip.lua") end)
 createButton("TeleportButton", UDim2.new(0.1, 0, 0.8, 0), "Teleport", function() loadExternalScript("https://raw.githubusercontent.com/iqoksz95-debug/Hub/refs/heads/main/MainTeleport.lua") end)
+
+-- Бинд на скрытие и показ окна без анимации
+local userInputService = game:GetService("UserInputService")
+local guiVisible = true
+userInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.H then 
+        guiVisible = not guiVisible
+        mainWindow.Visible = guiVisible
+    end
+end)
