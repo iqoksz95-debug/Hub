@@ -113,7 +113,7 @@ stopButton.MouseLeave:Connect(function()
 end)
 
 local espEnabled = false
-local espColor = Color3.fromRGB(255, 0, 0)
+local espColor = Color3.fromRGB(0, 0, 255)
 
 local function applyESP(character, player)
     if not character:FindFirstChild("ESP") then
@@ -136,7 +136,7 @@ local function applyESP(character, player)
         nameLabel.Size = UDim2.new(1, 0, 1, 0)
         nameLabel.BackgroundTransparency = 1
         nameLabel.Text = player.Name
-        nameLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+        nameLabel.TextColor3 = Color3.fromRGB(0, 0, 255)
         nameLabel.Font = Enum.Font.SourceSansBold
         nameLabel.TextSize = 14
         nameLabel.Parent = billboard
