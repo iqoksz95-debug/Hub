@@ -112,7 +112,7 @@ stopButton.MouseLeave:Connect(function()
     stopButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 end)
 
--- Noclip функционал
+- Noclip функционал
 local noclipEnabled = false
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
@@ -146,13 +146,24 @@ stopButton.MouseButton1Click:Connect(function()
     toggleNoclip(false)
 end)
 
--- Добавление события для возрождения персонажа
+-- Отключение ноклипа при смерти
+local function onCharacterDied()
+    if noclipEnabled then
+        toggleNoclip(false) -- Отключаем ноклип после смерти
+    end
+end
+
+-- Подключение событий для возрождения и смерти персонажа
 player.CharacterAdded:Connect(function(newCharacter)
     character = newCharacter
-    if noclipEnabled then
-        toggleNoclip(true) -- Включить ноклип после возрождения
-    end
+    -- Подключение события смерти персонажа
+    character:WaitForChild("Humanoid").Died:Connect(onCharacterDied)
 end)
+
+-- Подключение события смерти для текущего персонажа
+if character:FindFirstChild("Humanoid") then
+    character.Humanoid.Died:Connect(onCharacterDied)
+end
 
 -- Меню сохраняется после смерти
 screenGui.ResetOnSpawn = false
