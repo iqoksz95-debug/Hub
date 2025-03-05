@@ -138,7 +138,7 @@ local function applyESP(character, player)
         nameLabel.Text = player.Name
         nameLabel.TextColor3 = Color3.fromRGB(0, 0, 255)
         nameLabel.Font = Enum.Font.SourceSansBold
-        nameLabel.TextSize = 14
+        nameLabel.TextSize = 24
         nameLabel.Parent = billboard
     end
 end
