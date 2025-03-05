@@ -113,6 +113,7 @@ stopButton.MouseLeave:Connect(function()
 end)
 
 -- Noclip функционал
+-- Noclip функционал
 local noclipEnabled = false
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
@@ -144,6 +145,14 @@ end)
 
 stopButton.MouseButton1Click:Connect(function()
     toggleNoclip(false)
+end)
+
+-- Добавление события для возрождения персонажа
+player.CharacterAdded:Connect(function(newCharacter)
+    character = newCharacter
+    if noclipEnabled then
+        toggleNoclip(true) -- Включить ноклип после возрождения
+    end
 end)
 
 -- Меню сохраняется после смерти
