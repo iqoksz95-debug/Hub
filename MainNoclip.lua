@@ -112,7 +112,7 @@ stopButton.MouseLeave:Connect(function()
     stopButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 end)
 
-- Noclip функционал
+-- Noclip функционал
 local noclipEnabled = false
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
