@@ -113,7 +113,6 @@ stopButton.MouseLeave:Connect(function()
 end)
 
 -- Noclip функционал
--- Noclip функционал
 local noclipEnabled = false
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
