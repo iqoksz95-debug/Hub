@@ -38,6 +38,7 @@ local Tabs = {
 	Visual = Window:AddTab('Visual'),
 	Misc = Window:AddTab('Misc'),
 	Teleport = Window:AddTab('Teleport'),
+	Items = Window:AddTab('Items'),
     ['UI Settings'] = Window:AddTab('UI Settings'),
 }
 
@@ -46,6 +47,10 @@ local RightMain = Tabs.Main:AddRightGroupbox('Player')
 local LeftTeleport = Tabs.Teleport:AddLeftGroupbox('Teleports')
 local LeftMisc = Tabs.Misc:AddLeftGroupbox('Misc')
 local LeftVisual = Tabs.Visual:AddLeftGroupbox('Visuals')
+local LeftItem = Tabs.Items:AddLeftGroupbox('Items')
+local RightItem = Tabs.Items:AddRightGroupbox('Auto Give')
+
+
 
 local infStaminaEnabled = false  -- Флаг включения функции
 local staminaListener = nil  -- Переменная для обработчика событий
@@ -171,7 +176,6 @@ LeftMain:AddToggle('CombatStaminaToggle', {
         end
     end
 end)
-
 
 local scrapContainer = game.Workspace.Misc.Zones.LootingItems.Scrap
 local players = game:GetService("Players")
@@ -1277,6 +1281,15 @@ local MyButton7 = LeftMisc:AddButton({
     Tooltip = 'Press H to toggle aimbot'
 })
 
+local MyButton9 = LeftMisc:AddButton({
+    Text = 'Autofarm scrap',
+    Func = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/usumat300/Chain/refs/heads/main/autofarm.lua", true))()
+    end,
+    DoubleClick = false,
+    Tooltip = 'Base Farm'
+})
+
 local MyButton8 = LeftMisc:AddButton({
     Text = 'Unlock All Blueprints',
     Func = function()
@@ -1295,63 +1308,6 @@ local MyButton8 = LeftMisc:AddButton({
     end,
     DoubleClick = false,
     Tooltip = 'Unlock all blueprints for the player'
-})
-
-local MyButton9 = LeftMisc:AddButton({
-    Text = 'Auto Farm Scrap',
-    Func = function()
-        -- Compiled with roblox-ts v2.3.0
-        local Workspace = cloneref(game:GetService("Workspace"))
-        local Players = cloneref(game:GetService("Players"))
-        local Camera = Workspace.CurrentCamera
-        local LocalPlayer = Players.LocalPlayer
-        local MiscFolder = Workspace:WaitForChild("Misc")
-        local ZonesFolder = MiscFolder:WaitForChild("Zones")
-        local LootFolders = ZonesFolder:WaitForChild("LootingItems"):WaitForChild("Scrap")
-        local ScrapCollectorController = {}
-        do
-            local _container = ScrapCollectorController
-            local scrapCounter = 0
-            local lookAt = function(cframe)
-                local lookAtPos = CFrame.new(Camera.CFrame.Position, cframe.Position)
-                Camera.CFrame = lookAtPos
-            end
-            local bringPlr = function(cframe)
-                local _result = LocalPlayer.Character
-                if _result ~= nil then
-                    _result:PivotTo(cframe)
-                end
-            end
-            local collect = function(scrap)
-                scrapCounter += 1
-                local pivotCFrame = scrap:GetPivot()
-                local proximityPrompt = scrap:FindFirstChildWhichIsA("ProximityPrompt", true)
-                if proximityPrompt ~= nil then
-                    task.wait(0.4)
-                    lookAt(pivotCFrame)
-                    task.wait(0.2)
-                    fireproximityprompt(proximityPrompt)
-                else
-                    print("Skipped scrap: " .. scrapCounter)
-                end
-            end
-            local function __init()
-                for _, scraps in LootFolders:GetChildren() do
-                    local values = scraps:WaitForChild("Values")
-                    if scraps:GetAttribute("Scrap") ~= nil and scraps:IsA("Model") and values:GetAttribute("Available") == true then
-                        bringPlr(scraps:GetPivot())
-                        collect(scraps)
-                    end
-                    task.wait(0.2)
-                end
-                scrapCounter = 0
-            end
-            _container.__init = __init
-        end
-        ScrapCollectorController.__init()
-    end,
-    DoubleClick = false,
-    Tooltip = 'Automatically farm scrap'
 })
 
 
@@ -1416,6 +1372,611 @@ local MyButton = RightMain:AddButton({
     DoubleClick = false,
     Tooltip = 'Click to reset your character (respawn)'
 })
+
+
+local MyButton1 = LeftItem:AddButton({
+    Text = 'Give Crucifix',
+    Func = function()
+        local Player = game:GetService("Players").LocalPlayer
+        local Inventory = Player.PlayerGui.Ingame.Inventory
+        local slotNumbers = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" }
+
+        -- Check if there are any items in the inventory
+        local hasItems = false
+        for _, slot in ipairs(slotNumbers) do
+            if Inventory:FindFirstChild(slot) then
+                hasItems = true
+                break
+            end
+        end
+
+        if not hasItems then
+            Library:Notify("You need at least one item first!", 3)
+            return
+        end
+
+        -- Check if Crucifix already exists in the inventory
+        for _, slot in ipairs(slotNumbers) do
+            local item = Inventory:FindFirstChild(slot)
+            if item and item:FindFirstChild("Values") and item.Values:FindFirstChild("ItemName") then
+                if item.Values.ItemName.Value == "Crucifix" then
+                    Library:Notify("Crucifix is already in your inventory!", 3)
+                    return
+                end
+            end
+        end
+
+        -- Find an empty slot
+        local freeSlot = nil
+        for _, slot in ipairs(slotNumbers) do
+            if not Inventory:FindFirstChild(slot) then
+                freeSlot = slot
+                break
+            end
+        end
+
+        if not freeSlot then
+            Library:Notify("No free slots in inventory!", 3)
+            return
+        end
+
+        -- Clone a random item
+        local itemToGive = nil
+        for _, slot in ipairs(slotNumbers) do
+            local item = Inventory:FindFirstChild(slot)
+            if item then
+                itemToGive = item:Clone()
+                break
+            end
+        end
+
+        if not itemToGive then
+            Library:Notify("Item issuance failed!", 3)
+            return
+        end
+
+        -- Add the item to inventory
+        itemToGive.Parent = Inventory
+        itemToGive.Name = freeSlot
+
+        -- Set item name
+        itemToGive.Values.ItemName.Value = "Crucifix"
+
+        -- Change item icon
+        itemToGive.Icon.Image = "rbxassetid://15903361925"
+
+        -- Update slot number
+        itemToGive.Number.Text = freeSlot
+
+        Library:Notify("Item added to your inventory!", 3)
+    end,
+    DoubleClick = false,
+    Tooltip = 'Gives a Crucifix in your inventory'
+})
+
+local MyButton2 = LeftItem:AddButton({
+    Text = 'Give Double Barrel',
+    Func = function()
+        local Player = game:GetService("Players").LocalPlayer
+        local Inventory = Player.PlayerGui.Ingame.Inventory
+        local slotNumbers = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" }
+
+        -- Check if there are any items in the inventory
+        local hasItems = false
+        for _, slot in ipairs(slotNumbers) do
+            if Inventory:FindFirstChild(slot) then
+                hasItems = true
+                break
+            end
+        end
+
+        if not hasItems then
+            Library:Notify("You need at least one item first!", 3)
+            return
+        end
+
+        -- Check if Crucifix already exists in the inventory
+        for _, slot in ipairs(slotNumbers) do
+            local item = Inventory:FindFirstChild(slot)
+            if item and item:FindFirstChild("Values") and item.Values:FindFirstChild("ItemName") then
+                if item.Values.ItemName.Value == "DoubleBarrel" then
+                    Library:Notify("Double Barrel is already in your inventory!", 3)
+                    return
+                end
+            end
+        end
+
+        -- Find an empty slot
+        local freeSlot = nil
+        for _, slot in ipairs(slotNumbers) do
+            if not Inventory:FindFirstChild(slot) then
+                freeSlot = slot
+                break
+            end
+        end
+
+        if not freeSlot then
+            Library:Notify("No free slots in inventory!", 3)
+            return
+        end
+
+        -- Clone a random item
+        local itemToGive = nil
+        for _, slot in ipairs(slotNumbers) do
+            local item = Inventory:FindFirstChild(slot)
+            if item then
+                itemToGive = item:Clone()
+                break
+            end
+        end
+
+        if not itemToGive then
+            Library:Notify("Item issuance failed!", 3)
+            return
+        end
+
+        -- Add the item to inventory
+        itemToGive.Parent = Inventory
+        itemToGive.Name = freeSlot
+
+        -- Set item name
+        itemToGive.Values.ItemName.Value = "DoubleBarrel"
+
+        -- Change item icon
+        itemToGive.Icon.Image = "rbxassetid://16190395023"
+
+        -- Update slot number
+        itemToGive.Number.Text = freeSlot
+
+        Library:Notify("Item added to your inventory!", 3)
+    end,
+    DoubleClick = false,
+    Tooltip = 'Gives a Double Barrel in your inventory'
+})
+
+local MyButton3 = LeftItem:AddButton({
+    Text = 'Give Spell Book [He works]',
+    Func = function()
+        local Player = game:GetService("Players").LocalPlayer
+        local Inventory = Player.PlayerGui.Ingame.Inventory
+        local slotNumbers = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" }
+
+        -- Check if there are any items in the inventory
+        local hasItems = false
+        for _, slot in ipairs(slotNumbers) do
+            if Inventory:FindFirstChild(slot) then
+                hasItems = true
+                break
+            end
+        end
+
+        if not hasItems then
+            Library:Notify("You need at least one item first!", 3)
+            return
+        end
+
+        -- Check if Crucifix already exists in the inventory
+        for _, slot in ipairs(slotNumbers) do
+            local item = Inventory:FindFirstChild(slot)
+            if item and item:FindFirstChild("Values") and item.Values:FindFirstChild("ItemName") then
+                if item.Values.ItemName.Value == "SpellBook" then
+                    Library:Notify("Spell Book is already in your inventory!", 3)
+                    return
+                end
+            end
+        end
+
+        -- Find an empty slot
+        local freeSlot = nil
+        for _, slot in ipairs(slotNumbers) do
+            if not Inventory:FindFirstChild(slot) then
+                freeSlot = slot
+                break
+            end
+        end
+
+        if not freeSlot then
+            Library:Notify("No free slots in inventory!", 3)
+            return
+        end
+
+        -- Clone a random item
+        local itemToGive = nil
+        for _, slot in ipairs(slotNumbers) do
+            local item = Inventory:FindFirstChild(slot)
+            if item then
+                itemToGive = item:Clone()
+                break
+            end
+        end
+
+        if not itemToGive then
+            Library:Notify("Item issuance failed!", 3)
+            return
+        end
+
+        -- Add the item to inventory
+        itemToGive.Parent = Inventory
+        itemToGive.Name = freeSlot
+
+        -- Set item name
+        itemToGive.Values.ItemName.Value = "SpellBook"
+
+        -- Change item icon
+        itemToGive.Icon.Image = "rbxassetid://15410543290"
+
+        -- Update slot number
+        itemToGive.Number.Text = freeSlot
+
+        Library:Notify("Item added to your inventory!", 3)
+    end,
+    DoubleClick = false,
+    Tooltip = 'The book itself works but the chain will run as usual since there is no model of the book lol'
+})
+
+local MyButton4 = LeftItem:AddButton({
+    Text = 'Give Deagle',
+    Func = function()
+        local Player = game:GetService("Players").LocalPlayer
+        local Inventory = Player.PlayerGui.Ingame.Inventory
+        local slotNumbers = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" }
+
+        -- Check if there are any items in the inventory
+        local hasItems = false
+        for _, slot in ipairs(slotNumbers) do
+            if Inventory:FindFirstChild(slot) then
+                hasItems = true
+                break
+            end
+        end
+
+        if not hasItems then
+            Library:Notify("You need at least one item first!", 3)
+            return
+        end
+
+        -- Check if Crucifix already exists in the inventory
+        for _, slot in ipairs(slotNumbers) do
+            local item = Inventory:FindFirstChild(slot)
+            if item and item:FindFirstChild("Values") and item.Values:FindFirstChild("ItemName") then
+                if item.Values.ItemName.Value == "Deagle" then
+                    Library:Notify("Deagle is already in your inventory!", 3)
+                    return
+                end
+            end
+        end
+
+        -- Find an empty slot
+        local freeSlot = nil
+        for _, slot in ipairs(slotNumbers) do
+            if not Inventory:FindFirstChild(slot) then
+                freeSlot = slot
+                break
+            end
+        end
+
+        if not freeSlot then
+            Library:Notify("No free slots in inventory!", 3)
+            return
+        end
+
+        -- Clone a random item
+        local itemToGive = nil
+        for _, slot in ipairs(slotNumbers) do
+            local item = Inventory:FindFirstChild(slot)
+            if item then
+                itemToGive = item:Clone()
+                break
+            end
+        end
+
+        if not itemToGive then
+            Library:Notify("Item issuance failed!", 3)
+            return
+        end
+
+        -- Add the item to inventory
+        itemToGive.Parent = Inventory
+        itemToGive.Name = freeSlot
+
+        -- Set item name
+        itemToGive.Values.ItemName.Value = "Deagle"
+
+        -- Change item icon
+        itemToGive.Icon.Image = "rbxassetid://15410404828"
+
+        -- Update slot number
+        itemToGive.Number.Text = freeSlot
+
+        Library:Notify("Item added to your inventory!", 3)
+    end,
+    DoubleClick = false,
+    Tooltip = 'Gives a Deagle in your inventory'
+})
+
+local MyButton5 = LeftItem:AddButton({
+    Text = 'Give AK-47',
+    Func = function()
+        local Player = game:GetService("Players").LocalPlayer
+        local Inventory = Player.PlayerGui.Ingame.Inventory
+        local slotNumbers = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" }
+
+        -- Check if there are any items in the inventory
+        local hasItems = false
+        for _, slot in ipairs(slotNumbers) do
+            if Inventory:FindFirstChild(slot) then
+                hasItems = true
+                break
+            end
+        end
+
+        if not hasItems then
+            Library:Notify("You need at least one item first!", 3)
+            return
+        end
+
+        -- Check if Crucifix already exists in the inventory
+        for _, slot in ipairs(slotNumbers) do
+            local item = Inventory:FindFirstChild(slot)
+            if item and item:FindFirstChild("Values") and item.Values:FindFirstChild("ItemName") then
+                if item.Values.ItemName.Value == "AK47" then
+                    Library:Notify("AK is already in your inventory!", 3)
+                    return
+                end
+            end
+        end
+
+        -- Find an empty slot
+        local freeSlot = nil
+        for _, slot in ipairs(slotNumbers) do
+            if not Inventory:FindFirstChild(slot) then
+                freeSlot = slot
+                break
+            end
+        end
+
+        if not freeSlot then
+            Library:Notify("No free slots in inventory!", 3)
+            return
+        end
+
+        -- Clone a random item
+        local itemToGive = nil
+        for _, slot in ipairs(slotNumbers) do
+            local item = Inventory:FindFirstChild(slot)
+            if item then
+                itemToGive = item:Clone()
+                break
+            end
+        end
+
+        if not itemToGive then
+            Library:Notify("Item issuance failed!", 3)
+            return
+        end
+
+        -- Add the item to inventory
+        itemToGive.Parent = Inventory
+        itemToGive.Name = freeSlot
+
+        -- Set item name
+        itemToGive.Values.ItemName.Value = "AK47"
+
+        -- Change item icon
+        itemToGive.Icon.Image = "rbxassetid://17812936812"
+
+        -- Update slot number
+        itemToGive.Number.Text = freeSlot
+
+        Library:Notify("Item added to your inventory!", 3)
+    end,
+    DoubleClick = false,
+    Tooltip = 'Gives a AK in your inventory'
+})
+
+local autoGiveEnabled = false
+
+RightItem:AddToggle('AutoGiveCrucifix', { 
+    Text = 'Auto Give Crucifix', 
+    Default = false, 
+    Tooltip = 'Automatically gives Crucifix while enabled.',
+
+    Callback = function(Value)
+        autoGiveEnabled = Value
+
+        if autoGiveEnabled then
+            task.spawn(function()
+                while autoGiveEnabled do
+                    -- Call the function to give Crucifix
+                    GiveCrucifix()
+
+                    -- Wait before giving another one (adjust as needed)
+                    task.wait(5) -- Adjust the delay if necessary
+                end
+            end)
+        end
+    end
+})
+
+function GiveCrucifix()
+    local Player = game:GetService("Players").LocalPlayer
+    local Inventory = Player.PlayerGui.Ingame.Inventory
+    local slotNumbers = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" }
+
+    -- Check if Crucifix is already in inventory
+    for _, slot in ipairs(slotNumbers) do
+        local item = Inventory:FindFirstChild(slot)
+        if item and item:FindFirstChild("Values") and item.Values:FindFirstChild("ItemName") then
+            if item.Values.ItemName.Value == "Crucifix" then
+                return -- Stop here, no notification, no duplicate
+            end
+        end
+    end
+
+    -- Find an empty slot
+    local freeSlot = nil
+    for _, slot in ipairs(slotNumbers) do
+        if not Inventory:FindFirstChild(slot) then
+            freeSlot = slot
+            break
+        end
+    end
+
+    if not freeSlot then
+        Library:Notify("No free slots in inventory!", 3)
+        return
+    end
+
+    -- Clone a random item
+    local itemToGive = nil
+    for _, slot in ipairs(slotNumbers) do
+        local item = Inventory:FindFirstChild(slot)
+        if item then
+            itemToGive = item:Clone()
+            break
+        end
+    end
+
+    if not itemToGive then
+        Library:Notify("Item issuance failed!", 3)
+        return
+    end
+
+    -- Add the item to inventory
+    itemToGive.Parent = Inventory
+    itemToGive.Name = freeSlot
+
+    -- Set item name
+    itemToGive.Values.ItemName.Value = "Crucifix"
+
+    -- Change item icon
+    itemToGive.Icon.Image = "rbxassetid://15903361925"
+
+    -- Update slot number
+    itemToGive.Number.Text = freeSlot
+
+    Library:Notify("Item added to your inventory!", 3)
+end
+
+-- Функция для изменения скорости анимации
+local function adjustAnimationSpeed(speed)
+    local function speedUpAnimations(folder, speed)
+        for _, item in ipairs(folder:GetChildren()) do
+            if item:IsA("Animation") then
+                local animator = item:FindFirstChildOfClass("Animator")
+                if animator then
+                    for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
+                        track:AdjustSpeed(speed)
+                    end
+                end
+            elseif item:IsA("Folder") then
+                speedUpAnimations(item, speed)
+            end
+        end
+    end
+
+    local folders = {
+        game:GetService("ReplicatedStorage").PlayerAnims,
+        game:GetService("ReplicatedStorage").SituationalAnims,
+        game:GetService("ReplicatedStorage").GameStuff.Animations,
+        game:GetService("ReplicatedStorage").GameStuff.ItemAnimations,
+    }
+
+    for _, folder in ipairs(folders) do
+        speedUpAnimations(folder, speed)
+    end
+
+    local player = game.Players.LocalPlayer
+    local function onCharacterAdded(character)
+        local humanoid = character:WaitForChild("Humanoid")
+
+        -- Функция для изменения скорости анимации
+        local function speedUpCharacterAnimations()
+            for _, animationTrack in ipairs(humanoid:GetPlayingAnimationTracks()) do
+                animationTrack:AdjustSpeed(speed)
+            end
+        end
+
+        -- Первоначальная настройка скорости анимаций
+        speedUpCharacterAnimations()
+
+        -- Когда анимация начинается, корректируем её скорость
+        humanoid.AnimationPlayed:Connect(function(animationTrack)
+            animationTrack:AdjustSpeed(speed)
+        end)
+
+        -- Когда персонаж умирает, восстанавливаем скорость анимаций
+        humanoid.Died:Connect(function()
+            character:WaitForChild("HumanoidRootPart")
+            speedUpCharacterAnimations()
+        end)
+
+        -- Добавим отслеживание движения персонажа для изменения скорости
+        humanoid.Running:Connect(function(speed)
+            -- Обновление скорости анимаций, если персонаж двигается
+            if _G.isToggleEnabled then
+                for _, animationTrack in ipairs(humanoid:GetPlayingAnimationTracks()) do
+                    animationTrack:AdjustSpeed(_G.speedValue)
+                end
+            end
+        end)
+    end
+
+    -- Подключение функции к событию добавления персонажа
+    player.CharacterAdded:Connect(onCharacterAdded)
+
+    -- Если персонаж уже существует, применяем настройки
+    if player.Character then
+        onCharacterAdded(player.Character)
+    end
+end
+
+-- Изначальная скорость анимаций
+_G.speedValue = 70
+_G.isToggleEnabled = false
+
+-- Добавляем Toggle
+RightMain:AddToggle('SpeedToggle', {
+    Text = 'Enable Speed Up Animations',
+    Default = false, -- Значение по умолчанию установлено в false (отключено)
+    Tooltip = 'Toggle to enable/disable animation speed up', -- Подсказка при наведении на переключатель
+
+    Callback = function(Value)
+        _G.isToggleEnabled = Value
+        if Value then
+            -- Если toggle включен, увеличиваем скорость анимации
+            adjustAnimationSpeed(_G.speedValue)
+        else
+            -- Если toggle выключен, сбрасываем скорость на 1
+            adjustAnimationSpeed(1)
+        end
+    end
+})
+
+-- Добавляем слайдер для регулировки скорости
+RightMain:AddSlider('SpeedSlider', {
+    Text = "Adjust Speed",  -- Текст слайдера
+    Default = 70,           -- Значение по умолчанию
+    Min = 1,                -- Минимальное значение
+    Max = 100,              -- Максимальное значение
+    Suffix = "x",           -- Суффикс (например, "x" для умножения)
+    Rounding = 1,           -- Округление до 1 знака
+    Compact = false,        -- Сделать слайдер компактным (необходимо ли? false = нет)
+    HideMax = false,        -- Скрывать ли максимальное значение
+    Callback = function(value)
+        _G.speedValue = value
+        if _G.isToggleEnabled then
+            adjustAnimationSpeed(value)
+        end
+    end
+})
+
+-- Устанавливаем начальную скорость анимации
+adjustAnimationSpeed(1)  -- Изначально скорость 1, если toggle выключен
+
+
+
+
 
 -- Ui Settings
 local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
