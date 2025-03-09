@@ -83,7 +83,7 @@ Tabs.PlayerTab:Button({
 Tabs.UniversalTab:Button({
     Title = "Fisch_Native",
     Desc = "OH YES, EASY MONEY",
-    Callback = function() (loadstring or load)(game:HttpGet("https://raw.githubusercontent.com/Native-lab/Native/main/loader.lua"))() end
+    Callback = function() (loadstring or load)(game:HttpGet("https://getnative.cc/script/loader"))() end
 })
 
 Tabs.UniversalTab:Button({
