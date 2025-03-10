@@ -738,7 +738,7 @@ end
 
 -- Добавление Toggle
 LeftVisual:AddToggle("EspChainToggle", {
-    Text = "Esp Chain",
+    Text = "Chain ESP",
     Default = false,
     Tooltip = "Toggle ESP for the CHAIN monster",
     Callback = function(Value)
@@ -762,96 +762,252 @@ LeftVisual:AddToggle("EspChainToggle", {
 -- Запуск отслеживания модели CHAIN
 task.spawn(trackChainModel)
 
+local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+local espActive = false
+
+-- Функция для добавления ESP
+local function addESP(player)
+    if player == LocalPlayer or not player.Character then return end
+    local character = player.Character
+    local head = character:FindFirstChild("Head")
+    if not head then return end
+
+    -- Если ESP уже есть, не создаем дубликаты
+    if head:FindFirstChild("PlayerESP") then return end
+
+    -- Highlight
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "PlayerESP"
+    highlight.FillColor = Color3.fromRGB(255, 255, 255)
+    highlight.OutlineColor = Color3.fromRGB(0, 255, 0)
+    highlight.FillTransparency = 1
+    highlight.OutlineTransparency = 0
+    highlight.Parent = character
+
+    -- BillboardGui
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "PlayerESP"
+    billboard.Size = UDim2.new(0, 200, 0, 50)
+    billboard.StudsOffset = Vector3.new(0, 2, 0)
+    billboard.Adornee = head
+    billboard.AlwaysOnTop = true
+    billboard.MaxDistance = 10000
+    billboard.Parent = head
+
+    -- Контейнер
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, 0, 0, 28)
+    frame.BackgroundTransparency = 1
+    frame.Parent = billboard
+
+-- Имя игрока
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, 0, 0, 14)
+    nameLabel.Position = UDim2.new(0, 0, 0, 0) -- Переместили вверх
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Font = Enum.Font.Nunito
+    nameLabel.TextSize = 14
+    nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    nameLabel.TextStrokeTransparency = 0.5
+    nameLabel.Text = player.DisplayName -- Или player.Name
+    nameLabel.Parent = frame
+
+-- HP и расстояние
+    local infoLabel = Instance.new("TextLabel")
+    infoLabel.Size = UDim2.new(1, 0, 0, 14)
+    infoLabel.Position = UDim2.new(0, 0, 0, 14) -- Сдвинули вниз, чтобы не накладывалось
+    infoLabel.BackgroundTransparency = 1
+    infoLabel.Font = Enum.Font.Nunito
+    infoLabel.TextSize = 12
+    infoLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+    infoLabel.TextStrokeTransparency = 0.5
+    infoLabel.Parent = frame
 
 
--- Флаг для отслеживания состояния ESP
-local espEnabled = false
-
--- Функция для добавления Highlight
-local function addHighlight(item)
-    if not item:FindFirstChild("Highlight") then
-        local highlight = Instance.new("Highlight")
-        highlight.Name = "Highlight"
-        highlight.FillColor = Color3.fromRGB(170, 85, 0) -- Цвет заполнения
-        highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- Цвет контура
-        highlight.FillTransparency = 0.5
-        highlight.OutlineTransparency = 0
-        highlight.Parent = item
-    end
-end
-
--- Функция для удаления Highlight
-local function removeHighlight(item)
-    local highlight = item:FindFirstChild("Highlight")
-    if highlight then
-        highlight:Destroy()
-    end
-end
-
--- Функция для обработки добавления новых ScrapNormal
-local function onChildAdded(child)
-    if child:IsA("Model") and child.Name == "ScrapNormal" then
-        if espEnabled then
-            addHighlight(child)
+    -- Обновление текста
+    local function updateInfo()
+        if character and character:FindFirstChild("HumanoidRootPart") and character:FindFirstChild("Humanoid") then
+            local humanoid = character.Humanoid
+            local distance = (LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart"))
+                and (LocalPlayer.Character.HumanoidRootPart.Position - character.HumanoidRootPart.Position).Magnitude or 0
+            infoLabel.Text = string.format("HP: %d | Distance: %.1f", humanoid.Health, distance)
         end
     end
+
+    updateInfo()
+    RunService.RenderStepped:Connect(updateInfo)
 end
 
--- Функция для обработки удаления ScrapNormal
-local function onChildRemoved(child)
-    if child:IsA("Model") and child.Name == "ScrapNormal" then
-        removeHighlight(child)
-    end
-end
-
--- Основная функция для установки слушателей
-local function setupScrapHighlights()
-    local scrapFolder = Workspace:FindFirstChild("Misc"):FindFirstChild("Zones"):FindFirstChild("LootingItems"):FindFirstChild("Scrap")
-    if scrapFolder then
-        -- Добавляем Highlight ко всем существующим ScrapNormal, если ESP включен
-        for _, item in ipairs(scrapFolder:GetChildren()) do
-            if item:IsA("Model") and item.Name == "ScrapNormal" then
-                if espEnabled then
-                    addHighlight(item)
-                end
-            end
+-- Удаление ESP
+local function removeESP(player)
+    if player.Character then
+        local head = player.Character:FindFirstChild("Head")
+        if head then
+            local espGui = head:FindFirstChild("PlayerESP")
+            if espGui then espGui:Destroy() end
         end
         
-        -- Подписываемся на события добавления и удаления
-        scrapFolder.ChildAdded:Connect(onChildAdded)
-        scrapFolder.ChildRemoved:Connect(onChildRemoved)
-    else
-        warn("Папка Scrap не найдена!")
+        local highlight = player.Character:FindFirstChild("PlayerESP")
+        if highlight then highlight:Destroy() end
     end
 end
 
--- Функция для переключения ESP
-local function toggleEsp(value)
-    espEnabled = value
-    local scrapFolder = Workspace:FindFirstChild("Misc"):FindFirstChild("Zones"):FindFirstChild("LootingItems"):FindFirstChild("Scrap")
-    if scrapFolder then
-        for _, item in ipairs(scrapFolder:GetChildren()) do
-            if item:IsA("Model") and item.Name == "ScrapNormal" then
-                if espEnabled then
-                    addHighlight(item)
-                else
-                    removeHighlight(item)
-                end
-            end
+-- Обновление ESP для всех игроков
+local function updateESP()
+    for _, player in ipairs(Players:GetPlayers()) do
+        if espActive then
+            addESP(player)
+        else
+            removeESP(player)
         end
     end
 end
 
--- Создаем переключатель в интерфейсе
-LeftVisual:AddToggle('Esp_Scrap', {
-    Text = 'Esp Scrap', 
-    Default = false, -- по дефолту выключено
-    Tooltip = 'Enable Esp Scrap',
-    Callback = toggleEsp
+-- Обработчик респавна игрока
+local function onCharacterAdded(character)
+    task.wait(1) -- Подождем, чтобы убедиться, что модель загрузилась
+    if espActive then
+        addESP(Players:GetPlayerFromCharacter(character))
+    end
+end
+
+-- Подключение событий респавна
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(onCharacterAdded)
+end)
+
+for _, player in ipairs(Players:GetPlayers()) do
+    player.CharacterAdded:Connect(onCharacterAdded)
+end
+
+-- Toggle ESP
+LeftVisual:AddToggle("EspPlayerToggle", {
+    Text = "Players ESP",
+    Default = false,
+    Tooltip = "Toggle ESP for all players",
+    Callback = function(Value)
+        espActive = Value
+        updateESP()
+    end
 })
 
--- Настройка слушателей для Scrap
-setupScrapHighlights()
+local players = game:GetService("Players")
+local runService = game:GetService("RunService")
+local localPlayer = players.LocalPlayer
+local scrapFolder = workspace:FindFirstChild("Misc") 
+    and workspace.Misc:FindFirstChild("Zones") 
+    and workspace.Misc.Zones:FindFirstChild("LootingItems") 
+    and workspace.Misc.Zones.LootingItems:FindFirstChild("Scrap")
+
+if scrapFolder then
+    local scrapList = {} -- Храним BillboardGui и Highlight, чтобы обновлять их в RenderStepped
+    local espEnabled = false -- Переменная для отслеживания состояния toggle
+
+    -- Создаём toggle с помощью LinoriaLib
+    LeftVisual:AddToggle('ScrapToggle', { 
+        Text = 'Scrap ESP',  -- Название кнопки
+        Default = false,            -- Значение по умолчанию (выключено)
+        Tooltip = 'Toggle the visibility of Scrap ESP',  -- Подсказка
+        Callback = function(Value)
+            espEnabled = Value
+            if espEnabled then
+                -- Создаем Highlight и BillboardGui только когда toggle включен
+                for _, scrapModel in ipairs(scrapFolder:GetChildren()) do
+                    if scrapModel:IsA("Model") then
+                        local values = scrapModel:FindFirstChild("Values")
+                        
+                        -- Если Highlight ещё не был добавлен
+                        if not scrapModel:FindFirstChild("Highlight") then
+                            local highlight = Instance.new("Highlight")
+                            highlight.Adornee = scrapModel
+                            highlight.Parent = scrapModel
+                            highlight.FillTransparency = 1
+                            highlight.OutlineColor = Color3.fromRGB(0, 85, 255)
+                        end
+
+                        -- Если BillboardGui ещё не был добавлен
+                        local billboard = scrapModel:FindFirstChild("ScrapBillboard")
+                        if not billboard then
+                            billboard = Instance.new("BillboardGui")
+                            billboard.Name = "ScrapBillboard"
+                            billboard.Size = UDim2.new(4, 0, 1, 0)
+                            billboard.AlwaysOnTop = true
+                            billboard.Enabled = false  -- Изначально скрываем BillboardGui
+                            billboard.Parent = scrapModel
+							billboard.StudsOffset = Vector3.new(0, 1, 0)  -- Поднимаем на 2 единицы по оси Y
+
+
+                            local textLabel = Instance.new("TextLabel")
+                            textLabel.Name = "ScrapText"
+                            textLabel.Size = UDim2.new(1, 0, 1, 0)
+                            textLabel.BackgroundTransparency = 1
+                            textLabel.Font = Enum.Font.Nunito
+                            textLabel.TextSize = 16
+                            textLabel.TextColor3 = Color3.new(1, 1, 1)
+                            textLabel.Text = "Scrap"  -- Добавим текст по умолчанию
+                            textLabel.Parent = billboard
+                        end
+
+                        -- Проверяем атрибут Available и следим за ним
+                        local function updateVisibility()
+                            if values and values:GetAttribute("Available") ~= nil then
+                                local isAvailable = values:GetAttribute("Available")
+                                billboard.Enabled = isAvailable and espEnabled
+                                scrapModel:FindFirstChild("Highlight").Enabled = isAvailable and espEnabled
+                            else
+                                billboard.Enabled = false -- Если Values нет, выключаем биллборд
+                                scrapModel:FindFirstChild("Highlight").Enabled = false -- Отключаем Highlight
+                            end
+                        end
+
+                        if values then
+                            values:GetAttributeChangedSignal("Available"):Connect(updateVisibility)
+                            updateVisibility() -- Устанавливаем правильную видимость при старте
+                        end
+
+                        -- Добавляем в список обновления
+                        table.insert(scrapList, {model = scrapModel, label = billboard.ScrapText, highlight = scrapModel:FindFirstChild("Highlight")})
+                    end
+                end
+            else
+                -- Если toggle выключен, скрываем все BillboardGui и Highlight
+                for _, scrapData in ipairs(scrapList) do
+                    local billboard = scrapData.model:FindFirstChild("ScrapBillboard")
+                    local highlight = scrapData.highlight
+                    if billboard then
+                        billboard.Enabled = false
+                    end
+                    if highlight then
+                        highlight.Enabled = false
+                    end
+                end
+            end
+        end
+    })
+
+    -- Обновляем дистанцию в каждом кадре
+    runService.RenderStepped:Connect(function()
+        local character = localPlayer.Character
+        if character then
+            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+                for _, scrapData in ipairs(scrapList) do
+                    local model = scrapData.model
+                    local label = scrapData.label
+                    local distance = math.floor((humanoidRootPart.Position - model:GetPivot().Position).Magnitude)
+                    label.Text = string.format("Scrap\n%d m", distance)
+                end
+            end
+        end
+    end)
+else
+    warn("Папка Scrap не найдена")
+end
+
 
 local targets = {
     workspace.Misc.Zones.LootingItems.Artifacts:GetChildren()[4],
@@ -951,7 +1107,7 @@ end
 
 -- Добавляем Toggle для управления отображением
 LeftVisual:AddToggle('Esp_Artifacts', {
-    Text = 'Esp Artifacts', 
+    Text = 'Artifacts ESP', 
     Default = false,  -- По умолчанию выключен
     Tooltip = 'This toggles the ESP for artifacts.', 
     Callback = function(value)
@@ -1973,9 +2129,6 @@ RightMain:AddSlider('SpeedSlider', {
 
 -- Устанавливаем начальную скорость анимации
 adjustAnimationSpeed(1)  -- Изначально скорость 1, если toggle выключен
-
-
-
 
 
 -- Ui Settings
