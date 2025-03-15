@@ -54,9 +54,9 @@ local function loadExternalScript(url)
     end)
     
     if success then
-        print("Script loaded successfully: " .. url)
+        print("Script loaded successfully")
     else
-        warn("Failed to load script: " .. url .. " Error: " .. result)
+        warn("Failed to load script: Error")
     end
 end
 
