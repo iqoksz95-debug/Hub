@@ -6,8 +6,8 @@ screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 -- Создаем главное окно
 local mainWindow = Instance.new("Frame")
 mainWindow.Name = "MainWindow"
-mainWindow.Size = UDim2.new(0, 450, 0, 300)
-mainWindow.Position = UDim2.new(0.35, 0, 0.3, 0)
+mainWindow.Size = UDim2.new(0, 300, 0, 200)
+mainWindow.Position = UDim2.new(0.5, -150, 0.5, -100)
 mainWindow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 mainWindow.BackgroundTransparency = 0.4
 mainWindow.Active = true
@@ -59,13 +59,13 @@ titleLabel.Parent = mainWindow
 
 -- Поле для ввода скорости
 local speedInput = Instance.new("TextBox")
-speedInput.Size = UDim2.new(0.8, 0, 0, 50)
+speedInput.Size = UDim2.new(0.8, 0, 0, 30)
 speedInput.Position = UDim2.new(0.1, 0, 0.25, 0)
 speedInput.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 speedInput.TextColor3 = Color3.fromRGB(255, 255, 255)
 speedInput.PlaceholderText = "Введите скорость (16 - 300)"
 speedInput.Font = Enum.Font.SourceSansBold
-speedInput.TextSize = 24
+speedInput.TextSize = 18
 speedInput.Parent = mainWindow
 
 local inputCorner = Instance.new("UICorner")
@@ -78,7 +78,6 @@ end)
 speedInput.MouseLeave:Connect(function()
     speedInput.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 end)
-
 
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
@@ -95,13 +94,13 @@ end)
 
 -- Кнопка старта
 local startButton = Instance.new("TextButton")
-startButton.Size = UDim2.new(0.8, 0, 0, 50)
+startButton.Size = UDim2.new(0.8, 0, 0, 30)
 startButton.Position = UDim2.new(0.1, 0, 0.45, 0)
 startButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 startButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 startButton.Text = "Запустить скорость"
 startButton.Font = Enum.Font.SourceSansBold
-startButton.TextSize = 20
+startButton.TextSize = 18
 startButton.Parent = mainWindow
 
 startButton.MouseEnter:Connect(function()
@@ -110,6 +109,10 @@ end)
 startButton.MouseLeave:Connect(function()
     startButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 end)
+
+local startCorner = Instance.new("UICorner")
+startCorner.CornerRadius = UDim.new(0, 4)
+startCorner.Parent = startButton
 
 startButton.MouseButton1Click:Connect(function()
     local newSpeed = tonumber(speedInput.Text)
@@ -122,13 +125,13 @@ end)
 
 -- Кнопка остановки
 local stopButton = Instance.new("TextButton")
-stopButton.Size = UDim2.new(0.8, 0, 0, 50)
+stopButton.Size = UDim2.new(0.8, 0, 0, 30)
 stopButton.Position = UDim2.new(0.1, 0, 0.65, 0)
 stopButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 stopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 stopButton.Text = "Выключить скорость"
 stopButton.Font = Enum.Font.SourceSansBold
-stopButton.TextSize = 20
+stopButton.TextSize = 18
 stopButton.Parent = mainWindow
 
 stopButton.MouseEnter:Connect(function()
@@ -142,8 +145,16 @@ stopButton.MouseButton1Click:Connect(function()
     humanoid.WalkSpeed = 16 -- стандартная скорость
 end)
 
--- Добавляем переменную для UserInputService
-local userInputService = game:GetService("UserInputService")
+local stopCorner = Instance.new("UICorner")
+stopCorner.CornerRadius = UDim.new(0, 4)
+stopCorner.Parent = stopButton
+
+-- Обработчик смерти игрока
+player.CharacterAdded:Connect(function(newCharacter)
+    character = newCharacter
+    humanoid = character:WaitForChild("Humanoid")
+    humanoid.WalkSpeed = 16 -- Сбрасываем скорость при возрождении
+end)
 
 -- Меню сохраняется после смерти
 screenGui.ResetOnSpawn = false
