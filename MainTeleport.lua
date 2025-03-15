@@ -1,13 +1,24 @@
 -- Создаем ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "TeleportGui"
-screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+screenGui.ResetOnSpawn = false
+screenGui.Parent = game.CoreGui
+
+-- Обработчик для восстановления меню после смерти
+local player = game.Players.LocalPlayer
+
+player.CharacterAdded:Connect(function()
+    -- Убедимся, что ScreenGui существует и привязан к CoreGui
+    if not screenGui.Parent then
+        screenGui.Parent = game.CoreGui
+    end
+end)
 
 -- Создаем главное окно
 local mainWindow = Instance.new("Frame")
 mainWindow.Name = "MainWindow"
-mainWindow.Size = UDim2.new(0, 450, 0, 280)
-mainWindow.Position = UDim2.new(0.35, 0, 0.3, 0)
+mainWindow.Size = UDim2.new(0, 300, 0, 150)
+mainWindow.Position = UDim2.new(0.5, -150, 0.5, -75)
 mainWindow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 mainWindow.BackgroundTransparency = 0.4
 mainWindow.Active = true
@@ -59,11 +70,15 @@ titleLabel.Parent = mainWindow
 
 -- Поле выбора игрока
 local dropdown = Instance.new("Frame")
-dropdown.Size = UDim2.new(0.8, 0, 0, 50)
-dropdown.Position = UDim2.new(0.1, 0, 0.25, 0)
+dropdown.Size = UDim2.new(0.8, 0, 0, 30)
+dropdown.Position = UDim2.new(0.1, 0, 0.35, 0)
 dropdown.BackgroundColor3 = Color3.fromRGB(128, 128, 128)
 dropdown.BackgroundTransparency = 0.3
 dropdown.Parent = mainWindow
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 4)
+closeCorner.Parent = dropdown
 
 dropdown.MouseEnter:Connect(function()
     dropdown.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
@@ -78,7 +93,7 @@ selectedPlayer.BackgroundTransparency = 1
 selectedPlayer.Text = "Выберите игрока"
 selectedPlayer.TextColor3 = Color3.fromRGB(255, 255, 255)
 selectedPlayer.Font = Enum.Font.SourceSansBold
-selectedPlayer.TextSize = 24
+selectedPlayer.TextSize = 18
 selectedPlayer.Parent = dropdown
 
 local playerList = Instance.new("ScrollingFrame")
@@ -136,14 +151,18 @@ game.Players.PlayerRemoving:Connect(updatePlayerList)
 
 -- Кнопка телепортации
 local teleportButton = Instance.new("TextButton")
-teleportButton.Size = UDim2.new(0.8, 0, 0, 50)
-teleportButton.Position = UDim2.new(0.1, 0, 0.45, 0)
+teleportButton.Size = UDim2.new(0.8, 0, 0, 30)
+teleportButton.Position = UDim2.new(0.1, 0, 0.60, 0)
 teleportButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 teleportButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 teleportButton.Text = "Телепортироваться"
 teleportButton.Font = Enum.Font.SourceSansBold
-teleportButton.TextSize = 20
+teleportButton.TextSize = 18
 teleportButton.Parent = mainWindow
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 4)
+closeCorner.Parent = teleportButton
 
 teleportButton.MouseEnter:Connect(function()
     teleportButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
