@@ -123,7 +123,7 @@ local function startFly()
     bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
     bv.Velocity = Vector3.new(0, 0, 0)
 
-    -- Основной цикл полета
+    -- Отдельный цикл для обновления moveDirection
     task.spawn(function()
         while flying do
             task.wait()
@@ -141,6 +141,13 @@ local function startFly()
             else
                 moveDirection = Vector3.new()
             end
+        end
+    end)
+
+    -- Основной цикл полета
+    task.spawn(function()
+        while flying do
+            task.wait()
 
             -- Получаем направление движения с джойстика
             local moveVec = Vector3.new(0, 0, 0)
