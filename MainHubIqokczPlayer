@@ -123,27 +123,6 @@ local function startFly()
     bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
     bv.Velocity = Vector3.new(0, 0, 0)
 
-    -- Отдельный цикл для обновления moveDirection
-    task.spawn(function()
-        while flying do
-            task.wait()
-
-            -- Обновляем направление движения на основе джойстика
-            local touch = userInputService:GetTouchInput()
-            if touch then
-                local touchPosition = touch.Position
-                local joystick = userInputService:GetTouchJoystick()
-                if joystick then
-                    local joystickPosition = joystick.Position
-                    local delta = (touchPosition - joystickPosition)
-                    moveDirection = Vector3.new(delta.X, 0, delta.Y).Unit
-                end
-            else
-                moveDirection = Vector3.new()
-            end
-        end
-    end)
-
     -- Основной цикл полета
     task.spawn(function()
         while flying do
@@ -153,17 +132,8 @@ local function startFly()
             local moveVec = Vector3.new(0, 0, 0)
 
             if userInputService.TouchEnabled then
-                -- Двигаем персонажа в направлении камеры
-                local cam = game.Workspace.CurrentCamera.CFrame
-                moveVec = (cam.LookVector * moveDirection.Z + cam.RightVector * moveDirection.X)
-            end
-
-            -- Подъём и спуск (виртуальные кнопки)
-            if userInputService:IsKeyDown(Enum.KeyCode.ButtonR2) then
-                moveVec = moveVec + Vector3.new(0, 1, 0) -- Вверх
-            end
-            if userInputService:IsKeyDown(Enum.KeyCode.ButtonL2) then
-                moveVec = moveVec - Vector3.new(0, 1, 0) -- Вниз
+                -- Используем текущее направление движения (moveDirection) из джойстика
+                moveVec = moveDirection
             end
 
             -- Применяем движение
@@ -178,7 +148,6 @@ local function startFly()
         end
     end)
 end
-
 local function stopFly()
     flying = false
     if bv then bv:Destroy() end
