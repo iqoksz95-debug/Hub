@@ -128,12 +128,20 @@ local function startFly()
         while flying do
             task.wait()
 
-            -- Получаем направление движения с джойстика
+            -- Получаем ввод с джойстика
             local moveVec = Vector3.new(0, 0, 0)
 
             if userInputService.TouchEnabled then
-                -- Используем текущее направление движения (moveDirection) из джойстика
-                moveVec = moveDirection
+                local touch = userInputService:GetTouchInput()
+                if touch then
+                    local touchPosition = touch.Position
+                    local joystick = userInputService:GetTouchJoystick()
+                    if joystick then
+                        local joystickPosition = joystick.Position
+                        local delta = (touchPosition - joystickPosition)
+                        moveVec = Vector3.new(delta.X, 0, delta.Y).Unit
+                    end
+                end
             end
 
             -- Применяем движение
@@ -148,6 +156,7 @@ local function startFly()
         end
     end)
 end
+
 local function stopFly()
     flying = false
     if bv then bv:Destroy() end
