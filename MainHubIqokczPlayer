@@ -113,12 +113,7 @@ local function startFly()
     -- Отключаем стандартное управление персонажем
     player.Character.Humanoid.PlatformStand = true
 
-    -- Создаем BodyGyro и BodyVelocity для управления полетом
-    bg = Instance.new("BodyGyro", hrp)
-    bg.P = 9e4
-    bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-    bg.CFrame = hrp.CFrame
-
+    -- Создаем BodyVelocity для управления полетом
     bv = Instance.new("BodyVelocity", hrp)
     bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
     bv.Velocity = Vector3.new(0, 0, 0)
@@ -128,20 +123,12 @@ local function startFly()
         while flying do
             task.wait()
 
-            -- Получаем ввод с джойстика
+            -- Получаем направление движения с джойстика
             local moveVec = Vector3.new(0, 0, 0)
 
             if userInputService.TouchEnabled then
-                local touch = userInputService:GetTouchInput()
-                if touch then
-                    local touchPosition = touch.Position
-                    local joystick = userInputService:GetTouchJoystick()
-                    if joystick then
-                        local joystickPosition = joystick.Position
-                        local delta = (touchPosition - joystickPosition)
-                        moveVec = Vector3.new(delta.X, 0, delta.Y).Unit
-                    end
-                end
+                -- Используем текущее направление движения (moveDirection) из джойстика
+                moveVec = moveDirection
             end
 
             -- Применяем движение
@@ -150,9 +137,6 @@ local function startFly()
             else
                 bv.Velocity = Vector3.new(0, 0, 0)
             end
-
-            -- Поддерживаем направление камеры
-            bg.CFrame = CFrame.new(hrp.Position, hrp.Position + game.Workspace.CurrentCamera.CFrame.LookVector)
         end
     end)
 end
