@@ -135,8 +135,9 @@ local function startFly()
 
     local player = game.Players.LocalPlayer
     local character = player.Character
-    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+    if not character then return end
 
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
     if not humanoid then return end
 
     -- Отключаем анимации
@@ -187,8 +188,9 @@ local function stopFly()
 
     local player = game.Players.LocalPlayer
     local character = player.Character
-    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+    if not character then return end
 
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
     if not humanoid then return end
 
     -- Включаем анимации
