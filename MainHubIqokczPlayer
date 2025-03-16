@@ -79,95 +79,6 @@ local inputCorner = Instance.new("UICorner")
 inputCorner.CornerRadius = UDim.new(0, 4)
 inputCorner.Parent = speedInput
 
--- Полет, управление, изменение скорости и остановка
-local flying = false
-local speed = 20 -- Начальная скорость (1 * 20)
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local hrp = character:WaitForChild("HumanoidRootPart")
-local userInputService = game:GetService("UserInputService")
-local moveDirection = Vector3.new()
-
-local bg, bv
-
--- Функция для обновления направления движения на основе джойстика
-local function updateMoveDirection()
-    local touch = userInputService:GetTouchInput()
-    if touch then
-        local touchPosition = touch.Position
-        local joystick = userInputService:GetTouchJoystick()
-        if joystick then
-            local joystickPosition = joystick.Position
-            local delta = (touchPosition - joystickPosition)
-            moveDirection = Vector3.new(delta.X, 0, delta.Y).Unit
-        end
-    else
-        moveDirection = Vector3.new()
-    end
-end
-
-local function startFly()
-    if flying then return end
-    flying = true
-
-    -- Отключаем стандартное управление персонажем
-    player.Character.Humanoid.PlatformStand = true
-
-    -- Создаем BodyVelocity для управления полетом
-    bv = Instance.new("BodyVelocity", hrp)
-    bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-    bv.Velocity = Vector3.new(0, 0, 0)
-
-    -- Основной цикл полета
-    task.spawn(function()
-        while flying do
-            task.wait()
-
-            -- Получаем направление движения с джойстика
-            local moveVec = Vector3.new(0, 0, 0)
-
-            if userInputService.TouchEnabled then
-                -- Используем текущее направление движения (moveDirection) из джойстика
-                moveVec = moveDirection
-            end
-
-            -- Применяем движение
-            if moveVec.Magnitude > 0 then
-                bv.Velocity = moveVec.Unit * speed
-            else
-                bv.Velocity = Vector3.new(0, 0, 0)
-            end
-        end
-    end)
-end
-
-local function stopFly()
-    flying = false
-    if bv then bv:Destroy() end
-    if bg then bg:Destroy() end
-    hrp.Velocity = Vector3.new(0, 0, 0)
-    player.Character.Humanoid.PlatformStand = false
-    player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-end
-
--- Обработчик ввода скорости
-speedInput.FocusLost:Connect(function()
-    local newSpeed = tonumber(speedInput.Text)
-    if newSpeed and newSpeed > 0 then
-        -- Ограничиваем максимальную скорость до 50 (1000 после умножения)
-        if newSpeed > 50 then
-            newSpeed = 50
-            speedInput.Text = "50" -- Обновляем текст в поле ввода
-        end
-        speed = newSpeed * 20 -- Умножаем на 20 (1 -> 20, 2 -> 40, ..., 50 -> 1000)
-        print("Скорость установлена на:", speed) -- Отладочный вывод
-    else
-        speedInput.Text = "1" -- Если введено некорректное значение, сбрасываем на 1
-        speed = 1 * 20 -- Устанавливаем минимальную скорость (20)
-        print("Скорость сброшена на:", speed) -- Отладочный вывод
-    end
-end)
-
 -- Кнопка старта
 local startButton = Instance.new("TextButton")
 startButton.Size = UDim2.new(0.8, 0, 0, 30)
@@ -179,8 +90,6 @@ startButton.Font = Enum.Font.SourceSansBold
 startButton.TextSize = 18
 startButton.Parent = mainWindow
 
-startButton.MouseButton1Click:Connect(startFly)
-
 startButton.MouseEnter:Connect(function()
     startButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
 end)
@@ -188,9 +97,9 @@ startButton.MouseLeave:Connect(function()
     startButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 end)
 
-local inputCorner = Instance.new("UICorner")
-inputCorner.CornerRadius = UDim.new(0, 4)
-inputCorner.Parent = startButton
+local startCorner = Instance.new("UICorner")
+startCorner.CornerRadius = UDim.new(0, 4)
+startCorner.Parent = startButton
 
 -- Кнопка остановки
 local stopButton = Instance.new("TextButton")
@@ -203,8 +112,6 @@ stopButton.Font = Enum.Font.SourceSansBold
 stopButton.TextSize = 18
 stopButton.Parent = mainWindow
 
-stopButton.MouseButton1Click:Connect(stopFly)
-
 stopButton.MouseEnter:Connect(function()
     stopButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
 end)
@@ -212,17 +119,116 @@ stopButton.MouseLeave:Connect(function()
     stopButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 end)
 
-local inputCorner = Instance.new("UICorner")
-inputCorner.CornerRadius = UDim.new(0, 4)
-inputCorner.Parent = stopButton
+local stopCorner = Instance.new("UICorner")
+stopCorner.CornerRadius = UDim.new(0, 4)
+stopCorner.Parent = stopButton
 
--- Обработчик смерти игрока
-player.CharacterAdded:Connect(function(newCharacter)
-    character = newCharacter
-    hrp = character:WaitForChild("HumanoidRootPart")
-    stopFly() -- Отключаем полет при смерти
+-- Переменные для управления полетом
+local flying = false
+local speed = 1
+local bg, bv
+
+-- Функция для включения полета
+local function startFly()
+    if flying then return end
+    flying = true
+
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+    if not humanoid then return end
+
+    -- Отключаем анимации
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, false)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.Flying, false)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, false)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, false)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, false)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.Landed, false)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.Physics, false)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.PlatformStanding, false)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.Running, false)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.RunningNoPhysics, false)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.StrafingNoPhysics, false)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, false)
+    humanoid:ChangeState(Enum.HumanoidStateType.Swimming)
+
+    -- Создаем BodyGyro и BodyVelocity
+    bg = Instance.new("BodyGyro")
+    bg.P = 9e4
+    bg.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+    bg.cframe = character.PrimaryPart.CFrame
+    bg.Parent = character.PrimaryPart
+
+    bv = Instance.new("BodyVelocity")
+    bv.velocity = Vector3.new(0, 0.1, 0)
+    bv.maxForce = Vector3.new(9e9, 9e9, 9e9)
+    bv.Parent = character.PrimaryPart
+
+    -- Основной цикл полета
+    spawn(function()
+        while flying and humanoid and humanoid.Parent do
+            local moveDirection = humanoid.MoveDirection
+            bv.velocity = moveDirection * speed
+            bg.cframe = CFrame.new(character.PrimaryPart.Position, character.PrimaryPart.Position + moveDirection)
+            wait()
+        end
+    end)
+end
+
+-- Функция для выключения полета
+local function stopFly()
+    if not flying then return end
+    flying = false
+
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+    if not humanoid then return end
+
+    -- Включаем анимации
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, true)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.Flying, true)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, true)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.Landed, true)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.Physics, true)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.PlatformStanding, true)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.Running, true)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.RunningNoPhysics, true)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.StrafingNoPhysics, true)
+    humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, true)
+    humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
+
+    -- Удаляем BodyGyro и BodyVelocity
+    if bg then bg:Destroy() end
+    if bv then bv:Destroy() end
+end
+
+-- Обработчики кнопок
+startButton.MouseButton1Click:Connect(function()
+    local inputSpeed = tonumber(speedInput.Text)
+    if inputSpeed and inputSpeed >= 1 and inputSpeed <= 50 then
+        speed = inputSpeed
+        startFly()
+    else
+        speedInput.Text = "Ошибка: скорость 1-50"
+    end
 end)
 
--- Меню сохраняется после смерти
+stopButton.MouseButton1Click:Connect(function()
+    stopFly()
+end)
+
+-- Сохраняется после смерти
 screenGui.ResetOnSpawn = false
 screenGui.Parent = game.CoreGui
